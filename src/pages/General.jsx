@@ -22,15 +22,16 @@ export default function General() {
         <h1 className="main-heading">General</h1>
 
         <div className="general-actions">
-          <button className="add-task-btn">
+          <button
+            className={`action-btn ${activeAction === "add-task" ? "active" : ""}`}
+            onClick={() => handleActionClick("add-task")}
+          >
             <HiPlus />
             <span>Add task</span>
           </button>
 
           <button
-            className={`header-actions ${
-              activeAction === "my-tickets" ? "active" : ""
-            }`}
+            className={`action-btn ${activeAction === "my-tickets" ? "active" : ""}`}
             onClick={() => handleActionClick("my-tickets")}
           >
             <HiOutlineUser />
@@ -38,9 +39,7 @@ export default function General() {
           </button>
 
           <button
-            className={`header-actions ${
-              activeAction === "filter" ? "active" : ""
-            }`}
+            className={`action-btn ${activeAction === "filter" ? "active" : ""}`}
             onClick={() => handleActionClick("filter")}
           >
             <HiOutlineFilter />
@@ -48,9 +47,7 @@ export default function General() {
           </button>
 
           <button
-            className={`header-actions ${
-              activeAction === "sort" ? "active" : ""
-            }`}
+            className={`action-btn ${activeAction === "sort" ? "active" : ""}`}
             onClick={() => handleActionClick("sort")}
           >
             <HiOutlineSortAscending />
@@ -58,16 +55,14 @@ export default function General() {
           </button>
 
           <button
-            className={`more-btn ${
-              activeAction === "more" ? "active" : ""
-            }`}
+            className={`action-btn ${activeAction === "more" ? "active" : ""}`}
             onClick={() => handleActionClick("more")}
           >
             <HiOutlineDotsHorizontal />
           </button>
         </div>
       </div>
-      <KanbanBoard/>
+      <KanbanBoard />
     </div>
   );
 }
