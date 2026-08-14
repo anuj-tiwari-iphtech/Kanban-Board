@@ -1,4 +1,5 @@
 .general-page {
+    position: relative;
     width: 100%;
     height: 93vh;        /* sidebar/viewport jitna hi height */
     max-height: 100vh;

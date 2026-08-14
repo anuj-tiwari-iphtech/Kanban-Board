@@ -130,8 +130,8 @@
 
 .sidebar-menu2 .menu-item.selected {
     font-weight: 500;
-    color: #ffffff;
-    background: #4F46E5FF;
+    color: #4F46E5FF;
+    /* background: #4F46E5FF; */
 }
 
 .sidebar-menu2 .icon {

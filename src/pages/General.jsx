@@ -8,14 +8,32 @@ import {
 } from "react-icons/hi";
 import "./general.css";
 import KanbanBoard from "../components/KanbanBoard/KanbanBoard";
+import TaskModal from "../components/AddTaskModal/Modal";
 
 export default function General() {
   const [activeAction, setActiveAction] = useState();
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [tasks, setTasks] = useState([])
 
   const handleActionClick = (action) => {
     setActiveAction(action);
+
+    if(action == "add-task"){
+      setIsModalOpen(true)
+    }
   };
 
+  const handleModalClose = () => {
+    setIsModalOpen(false)
+    setActiveAction(null)
+  }
+
+  const handleAddTask = (newTask) =>{
+    console.log("Adding task to state:", newTask);
+    setTasks((prev) => [...prev, newTask]);
+    setIsModalOpen(false)
+  }
+ 
   return (
     <div className="general-page">
       <div className="general-header">
@@ -62,7 +80,13 @@ export default function General() {
           </button>
         </div>
       </div>
-      <KanbanBoard />
+      <KanbanBoard tasks={tasks}/>
+
+      {
+        isModalOpen && (
+          <TaskModal onClose={handleModalClose} onSave={handleAddTask}/>
+        )
+      }
     </div>
   );
 }

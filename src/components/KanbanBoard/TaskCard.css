@@ -1,0 +1,109 @@
+.task-card {
+    background: #ffffff;
+    border: 1px solid #eceef1;
+    border-radius: 6px;
+    padding: 12px;
+    margin-bottom: 12px;
+    cursor: pointer;
+    transition: box-shadow 0.2s ease;
+  }
+  
+  .task-card:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  }
+  
+  .task-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+  }
+  
+  .task-name {
+    font-family: "DM Sans", sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    color: #171a1f;
+    margin: 0;
+  }
+  
+  .task-priority {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+  
+  .task-priority svg {
+    width: 12px;
+    height: 12px;
+  }
+  
+  .task-image-wrapper {
+    width: 100%;
+    height: 120px;
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 8px;
+  }
+  
+  .task-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  
+  .task-labels {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-bottom: 8px;
+  }
+  
+  .task-label-pill {
+    padding: 2px 8px;
+    border-radius: 4px;
+    background: #eef2ff;
+    color: #4338ca;
+    font-size: 11px;
+    font-weight: 500;
+  }
+  
+  .task-due-date {
+    font-family: "DM Sans", sans-serif;
+    font-size: 12px;
+    color: #565e6c;
+    margin: 0 0 10px 0;
+  }
+  
+  .task-card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  
+  .task-meta {
+    display: flex;
+    gap: 12px;
+  }
+  
+  .task-meta-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+    color: #8b95a7;
+  }
+  
+  .task-meta-item svg {
+    width: 14px;
+    height: 14px;
+  }
+  
+  .task-avatar {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
