@@ -39,7 +39,7 @@ export default function TaskCard({task,isOverlay}) {
 
         {task.image && (
             <div className="task-image-wrapper">
-                <img src={task.image} alt={task.name}/>
+                <img src={task.image} alt={task.name} className="task-image"/>
             </div>
         )}
 

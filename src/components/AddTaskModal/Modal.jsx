@@ -5,12 +5,14 @@ import AttachmentSection from "./AttachmentSection";
 import DescriptionSection from "./Description";
 import useClickOutside from "../customHooks/useClickOutside";
 import img from '../../assets/navbar.png'
+import img2 from '../../assets/avatar2.png'
+import img3 from '../../assets/avatar3.png'
 import './Modal.css'
 
 const availableUsers = [
     { id: 1, name: "Marilyn", avatar: img },
-    { id: 2, name: "Alex", avatar: img },
-    { id: 3, name: "Priya", avatar: img },
+    { id: 2, name: "Alex", avatar: img2 },
+    { id: 3, name: "Priya", avatar: img3 },
 ];
 
 const availableLabels = ["Design","Frontend","Backend","Bug","Feature",];
