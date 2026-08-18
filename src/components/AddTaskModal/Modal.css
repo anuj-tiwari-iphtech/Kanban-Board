@@ -273,42 +273,7 @@
     color: #8b95a7;
 }
 
-/* Comment Section & save button */
-
-.comment-section{
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 12px 0;
-    border-top: 1px solid #eceef1;
-}
-
-.comment-avatar{
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
-    object-fit: cover;
-    flex-shrink: 0;
-}
-
-.comment-input{
-    flex: 1;
-    padding: 8px 12px;
-    border: none;
-    border-radius: 4px;
-    background: #f7f8fa;
-    font-size: 13px;
-    color: #171a1f;
-    outline: none;
-}
-
-.comment-input::placeholder{
-    color: #8b95a7;
-}
-
-.comment-input:focus{
-    background: #f0f1f5;
-}
+/* save button */
 
 .save-btn{
     width: 100%;
@@ -332,32 +297,213 @@
     transition: scale(0.98);
 }
 
-/* labels */
-
-.label-menu {
+/* for selected item*/
+.modal-property-row {
+    position: relative;   /* NEW — taaki dropdown isi ke relative absolute ho */
     display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    margin-left: 100px;
-    margin-top: 4px;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 0;
 }
-
-.label-option {
-    border: 1px solid #d7dae0;
-    background: #fff;
+  
+  .property-menu,
+  .label-menu {
+    position: absolute;    /* CHANGED — normal flow se nikal gaya */
+    top: 100%;              /* button ke turant neeche */
+    left: 100px;             /* Label text ke baad, adjust as needed */
+    z-index: 10;             /* baaki content ke upar float kare */
+    background: #ffffff;
+    border: 1px solid #eceef1;
+    border-radius: 6px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    padding: 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 140px;
+  }
+  
+  .property-option,
+  .label-option {
+    padding: 6px 10px;
+    border: none;
+    background: transparent;
+    text-align: left;
     border-radius: 4px;
-    padding: 5px 10px;
-    font-size: 12px;
-    color: #565e6c;
+    font-family: "DM Sans", sans-serif;
+    font-size: 13px;
+    color: #171a1f;
     cursor: pointer;
+  }
+  
+  .property-option:hover,
+  .label-option:hover {
+    background: #f5f3ff;
+  }
+  
+  .property-option.active,
+  .label-option.active {
+    color: #4338ca;
+    font-weight: 600;
+    background: #eeecff;
+  }
+
+  .date-menu {
+    position: absolute;
+    top: 100%;
+    left: 100px;
+    z-index: 10;
+    background: #ffffff;
+    border: 1px solid #eceef1;
+    border-radius: 6px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    padding: 10px;
+    min-width: 160px;
+  }
+  
+  .date-input {
+    width: 100%;
+    border: 1px solid #d7dae0;
+    border-radius: 4px;
+    padding: 8px 10px;
+    font-family: "DM Sans", sans-serif;
+    font-size: 13px;
+    color: #171a1f;
+    outline: none;
+    box-sizing: border-box;
+    cursor: pointer;
+    transition: border-color 0.2s ease;
+  }
+  
+  .date-input:hover {
+    border-color: #8b95a7;
+  }
+  
+  .date-input:focus {
+    border-color: #4338ca;
+    box-shadow: 0 0 0 3px rgba(67, 56, 202, 0.1);
+  }
+  
+  .add-more-btn:hover {
+    color: #323842ff;
+    background-color: #cfd2daff;
+  }
+
+  /* comment section */
+
+  .comment-section {
+    margin-top: 12px;
+    display: flex;
+    flex-direction: column;
+  }
+  
+.comment-header{
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 0;
+    border-top: 1px solid #eceef1;
 }
 
-.label-option:hover {
-    background: #f1f2f4;
-}
+  .comment-input-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 0;
+    border-top: 1px solid #eceef1;
+  }
+  
+  .comment-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+  }
+  
+  .comment-input {
+    flex: 1;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 4px;
+    background: #f7f8fa;
+    font-family: "DM Sans", sans-serif;
+    font-size: 13px;
+    color: #171a1f;
+    outline: none;
+  }
+  
+  .comment-input::placeholder {
+    color: #8b95a7;
+  }
+  
+  /* Individual comment item */
+  .comment-item {
+    display: flex;
+    gap: 10px;
+    padding: 12px 0;
+    border-top: 1px solid #eceef1;
+  }
+  
+  .comment-body {
+    flex: 1;
+  }
+  
+  .comment-meta {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    margin-bottom: 4px;
+  }
+  
+  .comment-name {
+    font-family: "DM Sans", sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: #171a1f;
+  }
+  
+  .comment-time {
+    font-family: "DM Sans", sans-serif;
+    font-size: 12px;
+    color: #8b95a7;
+  }
+  
+  .comment-text {
+    font-family: "DM Sans", sans-serif;
+    font-size: 13px;
+    color: #323842;
+    margin: 0 0 6px 0;
+    line-height: 1.5;
+  }
+  
+  .comment-actions {
+    display: flex;
+    gap: 14px;
+  }
+  
+  .comment-action-btn {
+    border: none;
+    background: transparent;
+    padding: 0;
+    font-family: "DM Sans", sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    color: #4338ca;
+    cursor: pointer;
+  }
+  
+  .comment-action-btn:hover {
+    text-decoration: underline;
+  }
 
-.label-option.active {
-    background: #4f46e5;
-    color: white;
-    border-color: #4f46e5;
-}
+  .modal-add-more {
+    position: relative;   /* dropdown ke liye zaroori */
+  }
+  
+  .no-more-properties {
+    padding: 6px 10px;
+    font-size: 12px;
+    color: #8b95a7;
+    margin: 0;
+  }

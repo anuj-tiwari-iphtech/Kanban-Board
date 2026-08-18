@@ -11,13 +11,20 @@
 
 .kanban-column {
     flex: 8 0 310px;
-    height: 100%;          /* 800px fixed hata diya — ab parent jitni height le */
+    height: 100%;          
     display: flex;
     flex-direction: column;
     padding: 12px;
     background-color: #f7f8fa;
     border-radius: 4px;
-    overflow-y: auto;      /* column ke andar cards grow/scroll karein, column khud nahi badhega */
+    overflow-y: auto;      
+
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.kanban-column::-webkit-scrollbar{
+  display: none;
 }
   .column-header {
     display: flex;
@@ -49,27 +56,43 @@
   
   .blue {
     background-color: #29a3e6;
+    margin-bottom: 10px;
   }
   
   .column-title.blue {
     background-color: transparent;
+    margin-bottom: 10px;
     color: #159bd7;
   }
   
   .yellow {
     background-color: #f2ae22;
+    margin-bottom: 10px;
   }
   
   .column-title.yellow {
     background-color: transparent;
     color: #e99c00;
+    margin-bottom: 10px;
   }
   
   .green {
     background-color: #22c55e;
+    margin-bottom: 10px;
   }
   
   .column-title.green {
     background-color: transparent;
     color: #16a34a;
+    margin-bottom: 10px;
   }
+
+  .board-add-button{
+    padding: 5px 10px;
+    margin-top: auto;
+    background: #ffffff;
+    border-radius: 0;
+    color: #888;
+    border-color: transparent;
+  }
+  

@@ -1,17 +1,33 @@
 import { HiOutlinePaperClip, HiOutlineChatAlt } from "react-icons/hi";
 import { HiArrowUp, HiArrowDown } from "react-icons/hi";
+import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 import "./TaskCard.css";
 
 const priorityConfig = {
     High: { color: "#e5484d", icon: <HiArrowUp /> },
     Medium: { color: "#e99c00", icon: <HiArrowUp /> },
     Low: { color: "#16a34a", icon: <HiArrowDown /> },
-  };
+};
 
-export default function TaskCard({task}) {
-    const priority = priorityConfig[task.priority] || []
+export default function TaskCard({task,isOverlay}) {
+    const priority = priorityConfig[task.priority] || [];
+
+    const {attributes, listeners, setNodeRef, transform, transition, isDragging} = useSortable({id : task.id, disabled: isOverlay})
+
+    const style = {
+        transfrom: CSS.Transform.toString(transform),
+        transition,
+        opacity: isDragging ? 0.5 : 1,
+
+    }
   return (
-    <div className="task-card">
+    <div className={`task-card ${isOverlay ? "overlay" : ""} ${isDragging ? "dragging" : ""}`}
+        ref={setNodeRef}
+        style={style}
+        {...attributes}
+        {...listeners}
+    >
         <div className="task-card-header">
             <h4 className="task-name">{task.name}</h4>
             {task.priority && (
@@ -37,6 +53,10 @@ export default function TaskCard({task}) {
             </div>
         )}
 
+        {task.description && (
+            <p className="task-description">{task.description}</p>
+        ) }
+
         {task.dueDate && (
             <p className="task-due-date">Due Date : {task.dueDate}</p>
         )}
@@ -53,8 +73,8 @@ export default function TaskCard({task}) {
 
             {task.assignee && (
                 <img
-                    src={task.assignee}
-                    alt="assignee"
+                    src={task.assignee.avatar}
+                    alt={task.assignee.name}
                     className="task-avatar"
                 />
             )}

@@ -1,7 +1,6 @@
 import { useState } from "react";
 
-export default function DescriptionSection(){
-    const [description, setDescriptiion] = useState()
+export default function DescriptionSection({description, setDescriptiion}){
 
     const handleChange = (e) => {
         setDescriptiion(e.target.value);

@@ -14,6 +14,7 @@ export default function General() {
   const [activeAction, setActiveAction] = useState();
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [tasks, setTasks] = useState([])
+  const [defaultStatus, setDefaultStatus] = useState("TO DO")
 
   const handleActionClick = (action) => {
     setActiveAction(action);
@@ -22,6 +23,11 @@ export default function General() {
       setIsModalOpen(true)
     }
   };
+
+  const handleOpenModal = (status = "TO DO") => {
+    setDefaultStatus(status)
+    setIsModalOpen(true)
+  }
 
   const handleModalClose = () => {
     setIsModalOpen(false)
@@ -42,7 +48,7 @@ export default function General() {
         <div className="general-actions">
           <button
             className={`action-btn ${activeAction === "add-task" ? "active" : ""}`}
-            onClick={() => handleActionClick("add-task")}
+            onClick={() => {handleActionClick("add-task"), handleOpenModal()}}
           >
             <HiPlus />
             <span>Add task</span>
@@ -80,11 +86,11 @@ export default function General() {
           </button>
         </div>
       </div>
-      <KanbanBoard tasks={tasks}/>
+      <KanbanBoard tasks={tasks} setTasks={setTasks} onAddTask={handleOpenModal}/>
 
       {
         isModalOpen && (
-          <TaskModal onClose={handleModalClose} onSave={handleAddTask}/>
+          <TaskModal onClose={handleModalClose} onSave={handleAddTask} defaultStatus={defaultStatus}/>
         )
       }
     </div>
