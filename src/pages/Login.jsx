@@ -1,15 +1,63 @@
 import { useState } from "react";
 import { FcGoogle } from "react-icons/fc";
 import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { z } from "zod";
+import useLocalStorage from "../customHooks/useLocalStorage";
 import "./Login.css";
 
+const loginSchema = z.object({
+  email: z
+    .string()
+    .min(1, "Email is required")
+    .email("Enter a valid email address"),
+  password: z
+    .string()
+    .min(1, "Password is required")
+    .min(6, "Password must be at least 6 characters"),
+});
+
 export default function Login() {
+  const [users] = useLocalStorage("kanban-users", []);
+  const [currentUser, setCurrentUser] = useLocalStorage("kanban-current-user", null);
+
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");   
+  const [password, setPassword] = useState("");
+  const [fieldErrors, setFieldErrors] = useState({});
+  const [error, setError] = useState("");
+
+  const navigate = useNavigate();
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log("Logging in:", { email, password });
+    setError("");
+    setFieldErrors({});
+
+    const result = loginSchema.safeParse({ email, password });
+
+    if (!result.success) {
+      const errors = {};
+      result.error.issues.forEach((issue) => {
+        const field = issue.path[0];
+        if (!errors[field]) errors[field] = issue.message;
+      });
+      setFieldErrors(errors);
+      return;
+    }
+
+    const { email: validEmail, password: validPassword } = result.data;
+
+    const matchedUser = users.find(
+      (u) => u.email === validEmail && u.password === validPassword
+    );
+
+    if (!matchedUser) {
+      setError("Invalid email & password");
+      return;
+    }
+
+    setCurrentUser(matchedUser);
+    navigate("/");
   };
 
   return (
@@ -22,7 +70,7 @@ export default function Login() {
         <h1 className="login-title">Welcome to TaskFlow</h1>
         <p className="login-subtitle">Your Gateway to Intelligent Interaction</p>
 
-        <form onSubmit={handleSubmit} className="login-form">
+        <form onSubmit={handleSubmit} className="login-form" noValidate>
           <label className="login-label">Email</label>
           <input
             type="email"
@@ -30,8 +78,10 @@ export default function Login() {
             placeholder="Email address"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            required
           />
+          {fieldErrors.email && (
+            <p className="login-field-error">{fieldErrors.email}</p>
+          )}
 
           <label className="login-label">Password</label>
           <input
@@ -40,8 +90,12 @@ export default function Login() {
             placeholder="Enter your password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            required
           />
+          {fieldErrors.password && (
+            <p className="login-field-error">{fieldErrors.password}</p>
+          )}
+
+          {error && <p className="login-error">{error}</p>}
 
           <button type="submit" className="login-submit-btn">
             Submit

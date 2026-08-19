@@ -175,3 +175,19 @@
     line-height: 1.6;
     margin-top: 24px;
   }
+
+
+  .login-field-error {
+    color: #e53e3e;
+    font-size: 0.8rem;
+    margin-top: -0.5rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .login-error {
+    color: #e53e3e;
+    font-size: 0.85rem;
+    text-align: center;
+    margin-top: -0.25rem;
+    margin-bottom: 0.5rem;
+  }

@@ -42,6 +42,10 @@
     max-width: 100%;
 }
 
+.task-wrap.expanded {
+  padding: 0 50px;
+}
+
 .modal-icon-row{
     display: flex;
     align-items: center;
@@ -71,12 +75,25 @@
     margin-bottom: 8px;
 }
 
-.modal-title{
-    font-family: "DM Sans", sans-serif;
-    font-size: 32px;
-    font-weight: 700px;
-    color: #171a1f;
-    margin: 10px 0 20px 0;
+.modal-title-input {
+  width: 100%;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-family: "DM Sans", sans-serif;
+  font-size: 32px;
+  font-weight: 700;
+  color: #171a1f;
+  margin: 0 0 20px 0;
+  padding: 0;
+}
+
+.modal-title-input::placeholder {
+  color: #000000;
+}
+
+.modal-title-input:focus {
+  outline: none;
 }
 
 .modal-property-row{
@@ -222,6 +239,7 @@
 
 .file-list{
     display: flex;
+    flex-wrap: wrap;
     gap: 10px;
     margin: 12px 0 12px 0 ;
     padding: 0;
@@ -257,7 +275,7 @@
 
 .description-textarea{
     width: 100%;
-    min-height: 40px;
+    min-height: 20px;
     padding: 8px 0;
     border: none;
     outline: none;
@@ -273,6 +291,36 @@
     color: #8b95a7;
 }
 
+
+
+.file-remove-btn {
+  margin-left: auto;
+  width: 28px;
+  height: 28px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  font-size: 15px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition: all 0.2s ease;
+}
+
+.file-remove-btn:hover {
+  background: #f0efff;
+  color: #e53935;
+}
+
+.file-remove-btn:active {
+  transform: scale(0.92);
+}
 /* save button */
 
 .save-btn{
@@ -325,6 +373,8 @@
   
   .property-option,
   .label-option {
+    display: flex;
+    align-items: center;
     padding: 6px 10px;
     border: none;
     background: transparent;
@@ -442,7 +492,8 @@
     display: flex;
     gap: 10px;
     padding: 12px 0;
-    border-top: 1px solid #eceef1;
+    background-color: #eceef1 ;
+    border: 1px solid #eceef1;
   }
   
   .comment-body {
@@ -507,3 +558,48 @@
     color: #8b95a7;
     margin: 0;
   }
+
+  .no-users-text {
+    padding: 8px 10px;
+    font-size: 12px;
+    color: #8b95a7;
+    margin: 0;
+  }
+
+/* label update */
+
+.selected-labels-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.selected-label-pill {
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: "DM Sans", sans-serif;
+  white-space: nowrap;
+}
+
+.label-color-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.label-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.modal-add-btn.has-labels {
+  border: none;
+  padding: 0;
+  background: transparent;
+}

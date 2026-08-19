@@ -1,17 +1,78 @@
 import { useState } from "react";
 import { FcGoogle } from "react-icons/fc";
-import { Link } from "react-router-dom";
-import "./Login.css";   
+import { Link, useNavigate } from "react-router-dom";
+import { z } from "zod";
+import useLocalStorage from "../customHooks/useLocalStorage";
+import "./Login.css";
+
+const generateAvatarUrl = (seed) => {
+  return `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(seed)}`;
+};
+
+const signUpSchema = z.object({
+  name: z
+    .string()
+    .min(1, "Name is required")
+    .min(2, "Name must be at least 2 characters"),
+  email: z
+    .string()
+    .min(1, "Email is required")
+    .email("Enter a valid email address"),
+  password: z
+    .string()
+    .min(1, "Password is required")
+    .min(6, "Password must be at least 6 characters"),
+});
 
 export default function SignUp() {
+  const [users, setUsers] = useLocalStorage("kanban-users", []);
+  const [currentUser, setCurrentUser] = useLocalStorage("kanban-current-user", null);
+
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [fieldErrors, setFieldErrors] = useState({});
+  const [error, setError] = useState("");
+
+  const navigate = useNavigate();
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log("Signing up:", { name, email, password });
-    // future: actual signup/auth logic yahan aayega
+    setError("");
+    setFieldErrors({});
+
+    const result = signUpSchema.safeParse({ name, email, password });
+
+    if (!result.success) {
+      const errors = {};
+      result.error.issues.forEach((issue) => {
+        const field = issue.path[0];
+        if (!errors[field]) errors[field] = issue.message;
+      });
+      setFieldErrors(errors);
+      return;
+    }
+
+    const { name: validName, email: validEmail, password: validPassword } = result.data;
+
+    const alreadyExists = users.some(
+      (u) => u.email.toLowerCase() === validEmail.toLowerCase()
+    );
+    if (alreadyExists) {
+      setError("An account with this email already exists");
+      return;
+    }
+
+    const newUser = {
+      id: `u_${Date.now()}`,
+      name: validName,
+      email: validEmail,
+      password: validPassword,
+      avatar: generateAvatarUrl(validEmail),
+    };
+
+    setUsers((prev) => [...prev, newUser]);
+    navigate("/login");
   };
 
   return (
@@ -24,7 +85,7 @@ export default function SignUp() {
         <h1 className="login-title">Create your account</h1>
         <p className="login-subtitle">Start organizing your work today</p>
 
-        <form onSubmit={handleSubmit} className="login-form">
+        <form onSubmit={handleSubmit} className="login-form" noValidate>
           <label className="login-label">Name</label>
           <input
             type="text"
@@ -32,8 +93,10 @@ export default function SignUp() {
             placeholder="Full name"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            required
           />
+          {fieldErrors.name && (
+            <p className="login-field-error">{fieldErrors.name}</p>
+          )}
 
           <label className="login-label">Email</label>
           <input
@@ -42,8 +105,10 @@ export default function SignUp() {
             placeholder="Email address"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            required
           />
+          {fieldErrors.email && (
+            <p className="login-field-error">{fieldErrors.email}</p>
+          )}
 
           <label className="login-label">Password</label>
           <input
@@ -52,8 +117,12 @@ export default function SignUp() {
             placeholder="Create a password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            required
           />
+          {fieldErrors.password && (
+            <p className="login-field-error">{fieldErrors.password}</p>
+          )}
+
+          {error && <p className="login-error">{error}</p>}
 
           <button type="submit" className="login-submit-btn">
             Sign Up

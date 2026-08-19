@@ -4,7 +4,7 @@ import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import "./TaskCard.css";
 
-const priorityConfig = {
+export const priorityConfig = {
     High: { color: "#e5484d", icon: <HiArrowUp /> },
     Medium: { color: "#e99c00", icon: <HiArrowUp /> },
     Low: { color: "#16a34a", icon: <HiArrowDown /> },
@@ -46,8 +46,12 @@ export default function TaskCard({task,isOverlay}) {
         {task.labels?.length > 0 && (
             <div className="task-labels">
                 {task.labels.map((label, i) => (
-                    <span key={i} className="task-label-pill">
-                        {label}
+                    <span
+                        key={i}
+                        className="task-label-pill"
+                        style={{ color: label.color, backgroundColor: label.bg }}
+                    >
+                        {label.name}
                     </span>
                 ))}
             </div>
@@ -66,7 +70,7 @@ export default function TaskCard({task,isOverlay}) {
                 <span className="task-meta-item">
                     <HiOutlinePaperClip/>{task.attachmentsCount}
                 </span>
-                <span>
+                <span className="task-meta-item">
                     <HiOutlineChatAlt/>{task.commentsCount}
                 </span>
             </div>

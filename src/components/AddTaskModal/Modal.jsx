@@ -1,21 +1,22 @@
 import { useState, useRef, useEffect } from "react";
-import {HiOutlineArrowsExpand,HiOutlineDotsHorizontal,HiOutlineX,HiOutlineTag,HiOutlineCalendar,HiOutlineStar,HiPlus, HiOutlineThumbUp, HiOutlineUser} from "react-icons/hi";
+import {HiOutlineArrowsExpand,HiOutlineDotsHorizontal,HiOutlineX,HiOutlineTag,HiOutlineCalendar,HiOutlineStar,HiPlus, HiOutlineThumbUp, HiOutlineUser, HiThumbUp} from "react-icons/hi";
 import { BsCircle } from "react-icons/bs";
 import AttachmentSection from "./AttachmentSection";
 import DescriptionSection from "./Description";
-import useClickOutside from "../customHooks/useClickOutside";
-import img from '../../assets/navbar.png'
-import img2 from '../../assets/avatar2.png'
-import img3 from '../../assets/avatar3.png'
+import useClickOutside from "../../customHooks/useClickOutside";
+import useLocalStorage from "../../customHooks/useLocalStorage";
+import { priorityConfig } from "../KanbanBoard/TaskCard";
+import img from "../../assets/avatar2.png"
 import './Modal.css'
 
-const availableUsers = [
-    { id: 1, name: "Marilyn", avatar: img },
-    { id: 2, name: "Alex", avatar: img2 },
-    { id: 3, name: "Priya", avatar: img3 },
-];
 
-const availableLabels = ["Design","Frontend","Backend","Bug","Feature",];
+const availableLabels = [
+    { name: "Design", color: "#8b5cf6", bg: "#f3e8ff" },
+    { name: "Frontend", color: "#0ea5e9", bg: "#e0f2fe" },
+    { name: "Backend", color: "#16a34a", bg: "#dcfce7" },
+    { name: "Bug", color: "#e5484d", bg: "#fee2e2" },
+    { name: "Feature", color: "#f59e0b", bg: "#fef3c7" },
+];
 
 const priorityOptions = [
     "High",
@@ -25,7 +26,17 @@ const priorityOptions = [
 
 const statusOptions = ["TO DO","IN PROGRESS","REVIEW","DONE",];
 
+const statusConfig = {
+    "TO DO": { color: "#159bd7" },
+    "IN PROGRESS": { color: "#e99c00" },
+    "REVIEW": { color: "#159bd7" },
+    "DONE": { color: "#16a34a" },
+};
+
 export default function TaskModal({onClose, onSave, defaultStatus}) {
+    const [users] = useLocalStorage("kanban-users", []); 
+    const [currentUser] = useLocalStorage("kanban-current-user", null);
+
     const [attachedFiles, setAttachedFiles] = useState([]);
     const [status, setStatus] = useState(defaultStatus || "TO DO"); 
     const [taskName, setTaskName] = useState("")
@@ -88,14 +99,16 @@ export default function TaskModal({onClose, onSave, defaultStatus}) {
         
         const newComment = {
             id : Date.now(),
-            name : "You",
-            avatar: img,
+            name :  currentUser?.name || "You",
+            avatar: currentUser?.avatar || img,
             text: commentInput.trim(),
             time: new Date().toLocaleDateString("en-US", {
                 hour:"numeric",
                 minute: "2-digit",
                 hour12: true,
-            })
+            }),
+            likes:0,
+            liked:false,
         }
 
         setComments((prev) => [...prev, newComment])
@@ -111,10 +124,21 @@ export default function TaskModal({onClose, onSave, defaultStatus}) {
         setShowAddPropertyMenu(false)
       }
 
+      const handleLikeToggle = (commentId) => {
+        setComments((prev) =>
+            prev.map((c) =>
+                c.id === commentId
+                    ? { ...c, liked: !c.liked, likes: c.liked ? c.likes - 1 : c.likes + 1 }
+                    : c
+            )
+        );
+      };
+
   return (
     <div className={`modal-overlay ${isExpanded ? "expanded" : ""}`} onClick={onClose}>
         <div className={`task-modal ${isExpanded ? "expanded" : ""}`}
          onClick={(e) => e.stopPropagation()}>
+        <div className={`task-wrap ${isExpanded ? "expanded" : ""}`}>
 
             <div className="modal-icon-row">
                 <HiOutlineArrowsExpand 
@@ -128,17 +152,33 @@ export default function TaskModal({onClose, onSave, defaultStatus}) {
             </div>
 
             <p className="modal-breadcrumb">General</p>
-            <h2 className="modal-title">Task Name</h2>
+            <input 
+                type="text"
+                className="modal-title-input"
+                placeholder="Task Name"
+                value={taskName}
+                onChange={(e) => setTaskName(e.target.value)}
+            />
 
             <div className="modal-property-row" ref={labelMenuRef}>
                 <HiOutlineTag className="property-icon"/>
                 <span className="modal-property-label">Label</span>
                 <button 
-                    className="modal-add-btn"
+                    className={`modal-add-btn ${labels.length > 0 ? "has-labels": ""}`}
                     onClick={() => setShowLabels((prev) => !prev)}
                 >
                 {labels.length > 0 ? (
-                    <span className="selected-value">{labels.join(",")}</span>
+                    <div className="selected-labels-row">
+                        {labels.map((label) => (
+                            <span
+                                key={label.name}
+                                className="selected-label-pill"
+                                style={{color: label.color, backgroundColor: label.bg}}
+                            >
+                                {label.name}
+                            </span>
+                        ))}
+                    </div>
                 ) : (
                     <><HiPlus/> Add label</>
                 )}
@@ -147,16 +187,22 @@ export default function TaskModal({onClose, onSave, defaultStatus}) {
                     <div className="label-menu">
                         {availableLabels.map((label) => (
                             <button
-                                key={label}
-                                className={`label-option ${labels.includes(label) ? "active":""} `}
+                                key={label.name}
+                                className={`label-option ${labels.some(l => l.name === label.name) ? "active" : ""}`}
                                 onClick={() => {
                                     setLabels((prev) => 
-                                        prev.includes(label)
-                                        ? prev.filter((item) => item !== label)
-                                        : [...prev, label]   
-                                        )
+                                    prev.some((item) => item.name === label.name)
+                                    ? prev.filter((item) => item.name !== label.name)
+                                    : [...prev, label]
+                                    )
                                 }}
-                            >{label}</button>
+                            > 
+                                {/* <span
+                                    className="label-color-dot"
+                                    style={{backgroundColor: label.color}}
+                                /> */}
+                                {label.name}
+                            </button>
                         ))}
                     </div>
                 )}
@@ -180,8 +226,9 @@ export default function TaskModal({onClose, onSave, defaultStatus}) {
                                 className="date-input"
                                 onChange={(e) => {
                                     const formatted = new Date(e.target.value).toLocaleDateString("en-Us", {
-                                        month: "short",
+                                        month: "numeric",
                                         day : "numeric",
+                                        year : "numeric",
                                     })
                                     setDueDate(formatted)
                                     setShoeDatePicker(false);
@@ -198,7 +245,7 @@ export default function TaskModal({onClose, onSave, defaultStatus}) {
                     onClick={() => setShowPriority((prev) => !prev)}
                 >
                 {priority ? (
-                    <span className="selected-value">{priority}</span>
+                    <span className="selected-value" style={{color : priorityConfig[priority].color}}>{priority}</span>
                 ):(
                     <><HiPlus/>Add priority</>
                 )}
@@ -216,7 +263,7 @@ export default function TaskModal({onClose, onSave, defaultStatus}) {
                                     setShowPriority(false);
                                 }}
                             >
-                                {/* {priority === item && "✓ "} */}
+
                                 {item}
                             </button>
                         ))}
@@ -231,7 +278,7 @@ export default function TaskModal({onClose, onSave, defaultStatus}) {
                     onClick={() => setShowStatus((prev) => !prev)}
                 >
                 {status ? (
-                    <span className="selected-value">{status}</span>
+                    <span className="selected-value" style={{color : statusConfig[status].color}}>{status}</span>
                 ): (
                     <><HiPlus/>Add Status</>
                 )}
@@ -272,7 +319,8 @@ export default function TaskModal({onClose, onSave, defaultStatus}) {
                     </button>
                     {showAssignee && (
                         <div className="property-menu">
-                            {availableUsers.map((user) => (
+                        {users.length > 0 ?
+                            (users.map((user) => (
                                 <button 
                                     key={user.id}
                                     className={`property-option ${assignee?.id === user.id ? "active":""}`}
@@ -281,9 +329,12 @@ export default function TaskModal({onClose, onSave, defaultStatus}) {
                                         setShowAssignee(false)
                                     }}
                                 >
-                                    <img src={user.avatar} alt={user.name}/>{user.name}
+                                    <img className="navbar-profile" src={user.avatar}/>
+                                    {user.name}
                                 </button>
-                            ))}
+                            ))):(
+                                <p className="no-users-text">No users signed up yet</p>
+                            )}
                         </div>
                     )}
                 </div>
@@ -320,34 +371,40 @@ export default function TaskModal({onClose, onSave, defaultStatus}) {
 
             <div className="comment-section">
                 <div className="comment-header">
-                <img
-                    src={img}
-                    alt='user avatar'
-                    className="comment-avatar"
-                />
-                <input
-                    type="text"
-                    className="comment-input"
-                    placeholder="Add a comment..."
-                    value={commentInput}
-                    onChange={(e) => setCommentInput(e.target.value)}
-                    onKeyDown={(e) => {
-                        if(e.key === "Enter") handleAddComment();
-                    }}
-                />
+                    <img
+                        src={currentUser?.avatar || img}
+                        alt={currentUser?.name || 'user avatar'}
+                        className="comment-avatar"
+                    />
+                    <input
+                        type="text"
+                        className="comment-input"
+                        placeholder="Add a comment..."
+                        value={commentInput}
+                        onChange={(e) => setCommentInput(e.target.value)}
+                        onKeyDown={(e) => {
+                            if(e.key === "Enter") handleAddComment();
+                        }}
+                    />
                 </div>
 
                 {comments.map((comment) =>(
                     <div key={comment.id} className="comment-item">
                         <img src={comment.avatar} alt={comment.name} className="comment-avatar"/>
-                        <div className="comment-bosy">
+                        <div className="comment-body">
                             <div className="comment-meta">
                                 <span className="comment-name">{comment.name}</span>
                                 <span className="comment-time">{comment.time}</span>
                             </div>
                             <p className="comment-text">{comment.text}</p>
                             <div className="comment-actions">
-                                <button className="comment-action-btn"><HiOutlineThumbUp/> Like</button>
+                                <button
+                                    className={`comment-action-btn ${comment.liked ? "liked" : ""}`}
+                                    onClick={() => handleLikeToggle(comment.id)}
+                                >
+                                    {comment.liked ? <HiThumbUp/> : <HiOutlineThumbUp/>}
+                                    {comment.likes > 0 ? ` (${comment.likes})` : ""}
+                                </button>
                                 <button className="comment-action-btn">Reply</button>
                             </div>
                         </div>
@@ -359,7 +416,7 @@ export default function TaskModal({onClose, onSave, defaultStatus}) {
                 Save
             </button>
         </div>
-
+        </div>
     </div>
   )
 }
