@@ -10,7 +10,7 @@ export const priorityConfig = {
     Low: { color: "#16a34a", icon: <HiArrowDown /> },
 };
 
-export default function TaskCard({task,isOverlay}) {
+export default function TaskCard({task, isOverlay, onEdit}) {
     const priority = priorityConfig[task.priority] || [];
 
     const {attributes, listeners, setNodeRef, transform, transition, isDragging} = useSortable({id : task.id, disabled: isOverlay})
@@ -27,6 +27,7 @@ export default function TaskCard({task,isOverlay}) {
         style={style}
         {...attributes}
         {...listeners}
+        onClick={onEdit}
     >
         <div className="task-card-header">
             <h4 className="task-name">{task.name}</h4>
@@ -37,9 +38,15 @@ export default function TaskCard({task,isOverlay}) {
             )}
         </div>
 
-        {task.image && (
-            <div className="task-image-wrapper">
-                <img src={task.image} alt={task.name} className="task-image"/>
+        {task.attachments?.some((file) =>file.type?.startsWith("image/")
+        ) && (<div className="task-image-wrapper">
+                <img
+                src={task.attachments.find((file) =>
+                    file.type?.startsWith("image/")
+                    ).data}
+                alt={task.name}
+                className="task-image"
+                />
             </div>
         )}
 

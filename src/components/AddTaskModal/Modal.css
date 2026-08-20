@@ -89,7 +89,7 @@
 }
 
 .modal-title-input::placeholder {
-  color: #000000;
+  color: #8b95a7;
 }
 
 .modal-title-input:focus {
@@ -291,25 +291,15 @@
     color: #8b95a7;
 }
 
-
-
 .file-remove-btn {
   margin-left: auto;
-  width: 28px;
-  height: 28px;
-
   display: flex;
-  align-items: center;
-  justify-content: center;
-
   border: none;
   border-radius: 50%;
   background: transparent;
   font-size: 15px;
   font-weight: 600;
-
   cursor: pointer;
-
   transition: all 0.2s ease;
 }
 

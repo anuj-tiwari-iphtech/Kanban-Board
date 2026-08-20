@@ -24,44 +24,49 @@ const priorityOptions = [
     "Low",
 ];
 
-const statusOptions = ["TO DO","IN PROGRESS","REVIEW","DONE",];
-
-const statusConfig = {
-    "TO DO": { color: "#159bd7" },
-    "IN PROGRESS": { color: "#e99c00" },
-    "REVIEW": { color: "#159bd7" },
-    "DONE": { color: "#16a34a" },
+const colorHexMap = {
+    blue: "#159bd7",
+    yellow: "#e99c00",
+    green: "#16a34a",
+    purple: "#8b5cf6",
+    red: "#e5484d",
 };
 
-export default function TaskModal({onClose, onSave, defaultStatus}) {
+
+
+export default function TaskModal({onClose, onSave, defaultStatus, editingTask, columns}) {
     const [users] = useLocalStorage("kanban-users", []); 
     const [currentUser] = useLocalStorage("kanban-current-user", null);
 
-    const [attachedFiles, setAttachedFiles] = useState([]);
-    const [status, setStatus] = useState(defaultStatus || "TO DO"); 
-    const [taskName, setTaskName] = useState("")
+    const statusOptions = columns.map((c) => c.title);
+    const statusConfig = columns.reduce((acc, c) => {
+        acc[c.title] = { color: colorHexMap[c.color] || "#8b95a7" };
+        return acc;
+    }, {});
+
+    const [attachedFiles, setAttachedFiles] = useState( editingTask?.attachments || []);
+    const [status, setStatus] = useState( editingTask?.status ||defaultStatus || statusOptions[0] || "TO DO")
+    const [taskName, setTaskName] = useState( editingTask?.name || "")
     const [isExpanded, setIsExpanded] = useState(false)
-    const [labels, setLabels] = useState([])
+    const [labels, setLabels] = useState( editingTask?.labels || [])
     const [showLabels, setShowLabels] = useState(false)
-    const [priority, setPriority] = useState("");
+    const [priority, setPriority] = useState( editingTask?.priority || "Low")
     const [showPriority, setShowPriority] = useState(false);
     const [showStatus, setShowStatus] = useState(false);
-    const [dueDate, setDueDate] = useState("")
+    const [dueDate, setDueDate] = useState(editingTask?.dueDate || "")
     const [showDatePicker, setShoeDatePicker] = useState(false)
-    const [description, setDescriptiion] = useState("")
-    const [comments, setComments] = useState([])
+    const [description, setDescriptiion] = useState(editingTask?.description || "")
+    const [comments, setComments] = useState( editingTask?.comments || [])
     const [commentInput, setCommentInput] = useState("")
-    const [visibleProperties, setVisibleProperties] = useState([])
+    const [visibleProperties, setVisibleProperties] = useState(editingTask?.assignee ? ["assignee"] : [])
     const [showAddProprtyMenu, setShowAddPropertyMenu] = useState(false)
-    const [assignee, setAssignee] = useState(null)
+    const [assignee, setAssignee] = useState(editingTask?.assignee || null)
     const [showAssignee, setShowAssignee] = useState(false)
+
     
     const handleSave = () => {
-        const imageFile = attachedFiles.find(
-            (file) => file.type.startsWith("image/")
-        );
         const newTask = {
-            id: Date.now(),
+            id: editingTask?.id || Date.now(),
             name: taskName || "Untitled",
             status,
             priority,
@@ -72,9 +77,7 @@ export default function TaskModal({onClose, onSave, defaultStatus}) {
             description,
             comments,
             assignee: assignee,
-            image: imageFile
-            ? URL.createObjectURL(imageFile)
-            : null,
+            attachments: attachedFiles,
         };
         console.log("Saving task:", newTask);
         onSave(newTask);

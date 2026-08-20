@@ -1,11 +1,11 @@
 .kanban-board {
     width: 100%;
-    flex: 1;               /* bacha hua saara space le le */
-    min-height: 0;         /* IMPORTANT: flex child ko scroll karne dene ke liye zaroori */
+    flex: 1;               
+    min-height: 0;        
     display: flex;
     gap: 16px;
     padding: 16px 22px;
-    overflow-x: auto;      /* columns horizontally scroll */
+    overflow-x: auto;      
     overflow-y: hidden;
 }
 
@@ -96,3 +96,172 @@
     border-color: transparent;
   }
   
+/* Adding Kanban Column */
+
+.column-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(23, 26, 31, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.column-modal {
+  width: 100%;
+  max-width: 400px;
+  background: #ffffff;
+  border-radius: 10px;
+  padding: 24px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
+}
+
+.column-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.column-modal-header h3 {
+  font-family: "DM Sans", sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  color: #171a1f;
+  margin: 0;
+}
+
+.column-modal-close {
+  width: 18px;
+  height: 18px;
+  color: #8b95a7;
+  cursor: pointer;
+}
+
+.column-modal-label {
+  display: block;
+  font-family: "DM Sans", sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  color: #171a1f;
+  margin-bottom: 6px;
+}
+
+
+.column-modal-input,
+.column-modal-select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #d7dae0;
+  border-radius: 6px;
+  font-family: "DM Sans", sans-serif;
+  font-size: 13px;
+  outline: none;
+  margin-bottom: 16px;
+  box-sizing: border-box;
+}
+
+.column-modal-input:focus,
+.column-modal-select:focus {
+  border-color: #4338ca;
+}
+
+.column-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.column-modal-cancel {
+  padding: 8px 16px;
+  border: 1px solid #d7dae0;
+  border-radius: 6px;
+  background: transparent;
+  color: #565e6c;
+  font-family: "DM Sans", sans-serif;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.column-modal-confirm {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  background: #4338ca;
+  color: #ffffff;
+  font-family: "DM Sans", sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.column-delete-btn {
+  margin-left: auto;
+  border: none;
+  background: transparent;
+  color: #8b95a7;
+  cursor: pointer;
+  padding: 4px;
+}
+
+.column-delete-btn:hover {
+  margin-bottom: 10px;
+  color: #e5484d;
+}
+
+.column-title.blue {
+  margin-bottom: 10px;
+  color: #159bd7;
+}
+
+.column-title.yellow {
+  margin-bottom: 10px;
+  color: #f2ae22;
+}
+
+.column-title.green {
+  margin-bottom: 10px;
+  color: #16a34a;
+}
+
+.column-title.purple {
+  margin-bottom: 10px;
+  color: #8b5cf6;
+}
+
+.column-title.red {
+  margin-bottom: 10px;
+  color: #e5484d;
+}
+
+.column-count.blue {
+  margin-bottom: 10px;
+  background-color: #e6f5fc;
+  color: #159bd7;
+}
+
+.column-count.yellow {
+  margin-bottom: 10px;
+  background-color: #fff4d6;
+  color: #e99c00;
+}
+
+.column-count.green {
+  margin-bottom: 10px;
+  background-color: #e8f8ed;
+  color: #16a34a;
+}
+
+.column-count.purple {
+  margin-bottom: 10px;
+  background-color: #f1eafe;
+  color: #8b5cf6;
+}
+
+.column-count.red {
+  margin-bottom: 10px;
+  background-color: #fdeaea;
+  color: #e5484d;
+}

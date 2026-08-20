@@ -1,6 +1,6 @@
 import { useDroppable } from "@dnd-kit/core";
-
-export default function DroppableColumn({column, count, children, onAddTask}){
+import { HiOutlineTrash } from "react-icons/hi";
+export default function DroppableColumn({column, count, children, onAddTask, onDeleteColumn}){
     const {setNodeRef} = useDroppable({id: column.title})
 
     return(
@@ -8,6 +8,9 @@ export default function DroppableColumn({column, count, children, onAddTask}){
             <div className="column-header">
                 <span className={`column-count ${column.color}`}>{count}</span>
                 <span className={`column-title ${column.color}`}>{column.title}</span>
+                <button className="column-delete-btn" onClick={onDeleteColumn}>
+                    <HiOutlineTrash/>
+                </button>
             </div>
 
             {children}

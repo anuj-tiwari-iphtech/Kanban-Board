@@ -5,11 +5,20 @@ import TaskModal from "../components/AddTaskModal/Modal";
 import useClickOutside from "../customHooks/useClickOutside";
 import useLocalStorage from "../customHooks/useLocalStorage";
 import "./general.css";
+import AddColumnModal from "../components/KanbanBoard/AddColumnModal";
+
+const defaultColumns = [
+  { title: "TO DO", color: "blue" },
+  { title: "IN PROGRESS", color: "yellow" },
+  { title: "REVIEW", color: "blue" },
+  { title: "DONE", color: "green" },
+];
 
 export default function General() {
   const [users] = useLocalStorage("kanban-users",[]);
   const [currentUser] = useLocalStorage("kanban-current-user",null);
   const [tasks, setTasks] = useLocalStorage("Kanban-tasks", [])
+  const [columns, setColumns] = useLocalStorage("kanban-columns", defaultColumns);
 
   const [activeAction, setActiveAction] = useState();
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -18,6 +27,8 @@ export default function General() {
   const [showFilterMenu, setShowFilterMenu] = useState(false);
   const [sortOrder, setSortOrder] = useState(null)
   const [showSortMenu, setShowSortMenu] = useState(false)
+  const [editingTask, setEditingTask] = useState(null);
+  const [showColumnModal, setShowColumnModal] = useState(false)
 
   const filterRef = useRef(null);
   const sortRef = useRef(null)
@@ -27,6 +38,8 @@ export default function General() {
 
   const isMyTicketsActive = activeAction === "my-tickets"
   const priorityOrder = {High:1, Medium:2, Low:3}
+
+  const columnColors = ["blue", "yellow", "green", "purple", "red"];
 
   let visibleTasks = tasks.filter((t) => {
     if (isMyTicketsActive) {
@@ -59,19 +72,58 @@ export default function General() {
   }
 
   const handleOpenModal = (status = "TO DO") => {
+    setEditingTask(null);
     setDefaultStatus(status)
     setIsModalOpen(true)
   }
-
+  
   const handleModalClose = () => {
     setIsModalOpen(false)
     setActiveAction(null)
   }
 
+  const handleEditTask = (task) => {
+    setEditingTask(task);
+    setIsModalOpen(true);
+  }
+
   const handleAddTask = (newTask) =>{
     console.log("Adding task to state:", newTask);
-    setTasks((prev) => [...prev, newTask]);
+    if(editingTask){
+      setTasks((prev) => 
+        prev.map((t) => (t.id === editingTask.id ? {...newTask, id: editingTask.id} : t) )
+      )
+    }else{
+      setTasks((prev) => [...prev, newTask]);
+    }
     setIsModalOpen(false)
+    setEditingTask(null)
+  }
+
+  const handleAddColumn = (title, position) => {
+    const alreadyExists = columns.some((c) => c.title === title);
+    if(alreadyExists) return;
+
+    const newColumn = {
+      title,
+      color: columnColors[columns.length % columnColors.length],
+    }
+
+    setColumns((prev) => {
+      if(position === "start"){
+        return [newColumn, ...prev];
+      }
+
+      const insertIndex = Number(position)
+      const updated = [...prev]
+      updated.splice(insertIndex, 0 , newColumn);
+      return updated;
+    })
+  }
+
+  const handleDeleteColumn = (title) => {
+    setColumns((prev) => prev.filter((c) => c.title !== title))
+    setTasks((prev) => prev.filter((t) => t.status !== title))
   }
  
   return (
@@ -182,19 +234,47 @@ export default function General() {
 
           <button
             className={`action-btn ${activeAction === "more" ? "active" : ""}`}
-            onClick={() => handleActionClick("more")}
+            onClick={() => {
+              handleActionClick("more")
+              setShowColumnModal(true)
+            }}
           >
             <HiOutlineDotsHorizontal />
           </button>
-        </div>
-      </div>
-      <KanbanBoard tasks={visibleTasks} setTasks={setTasks} onAddTask={handleOpenModal}/>
+          
+          </div>
 
-      {
-        isModalOpen && (
-          <TaskModal onClose={handleModalClose} onSave={handleAddTask} defaultStatus={defaultStatus}/>
-        )
-      }
-    </div>
+      </div>
+        <KanbanBoard 
+          tasks={visibleTasks} 
+          setTasks={setTasks} 
+          onAddTask={handleOpenModal}
+          onEditTask={handleEditTask}
+          columns={columns}
+          onDeleteColumn={handleDeleteColumn}
+        />
+
+          {
+            showColumnModal && (
+              <AddColumnModal
+                onClose={() => setShowColumnModal(false)}
+                onAdd={handleAddColumn}
+                columns={columns}
+              />
+            )
+          }
+
+        {
+          isModalOpen && (
+            <TaskModal 
+              onClose={() => {setIsModalOpen(false), setEditingTask(null)}} 
+              onSave={handleAddTask} 
+              defaultStatus={defaultStatus}
+              editingTask={editingTask}
+              columns={columns}
+            />
+          )
+        }
+      </div>
   );
 }

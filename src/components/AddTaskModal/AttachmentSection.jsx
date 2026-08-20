@@ -1,5 +1,6 @@
 import { useState, useRef } from "react";
-import { validateFiles, ALLOWED_FILE_TYPES, MAX_FILE_SIZE, MAX_FILES } from "../../utils/fileValidation";
+import {validateFiles,ALLOWED_FILE_TYPES,MAX_FILE_SIZE,MAX_FILES,} from "../../utils/fileValidation";
+import { fileToDataUrl } from "../../utils/fileToDataUrl";
 
 export default function AttachmentSection({ files, setFiles }) {
   const [isDragging, setIsDragging] = useState(false);
@@ -11,18 +12,40 @@ export default function AttachmentSection({ files, setFiles }) {
     setIsDragging(true);
   };
 
-  const handleDragLEave = (e) => {
+  const handleDragLeave = (e) => {
     e.preventDefault();
     setIsDragging(false);
   };
 
-  const addFiles = (incomingFiles) => {
+  const addFiles = async (incomingFiles) => {
     setFileError("");
-    const { valid, accepted, errors } = validateFiles(incomingFiles, files);
+
+    const { valid, accepted, errors } = validateFiles(
+      incomingFiles,
+      files
+    );
 
     if (accepted.length > 0) {
-      setFiles((prev) => [...prev, ...accepted]);
+      try {
+        const convertedFiles = await Promise.all(
+          accepted.map(async (file) => ({
+            id: `file_${Date.now()}_${Math.random()
+              .toString(36)
+              .slice(2)}`,
+            name: file.name,
+            type: file.type,
+            size: file.size,
+            data: await fileToDataUrl(file),
+          }))
+        );
+
+        setFiles((prev) => [...prev, ...convertedFiles]);
+      } catch (error) {
+        console.error("Failed to read files:", error);
+        setFileError("Could not read one or more files.");
+      }
     }
+
     if (!valid) {
       setFileError(errors.join(" "));
     }
@@ -31,22 +54,28 @@ export default function AttachmentSection({ files, setFiles }) {
   const handleDrop = (e) => {
     e.preventDefault();
     setIsDragging(false);
+
     const droppedFiles = Array.from(e.dataTransfer.files);
     addFiles(droppedFiles);
   };
 
   const handleBrowserClick = () => {
-    fileInputRef.current.click();
+    fileInputRef.current?.click();
   };
 
   const handleFileSelect = (e) => {
     const selectedFiles = Array.from(e.target.files);
+
     addFiles(selectedFiles);
-    e.target.value = ""; // allow re-selecting the same file after a fix
+
+    e.target.value = "";
   };
 
-  const handleRemove = (index) => {
-    setFiles((prev) => prev.filter((_, i) => i !== index));
+  const handleRemove = (id) => {
+    setFiles((prev) =>
+      prev.filter((file) => file.id !== id)
+    );
+
     setFileError("");
   };
 
@@ -56,49 +85,64 @@ export default function AttachmentSection({ files, setFiles }) {
 
       {files.length > 0 && (
         <ul className="file-list">
-          {files.map((file, index) => {
-            const isImage = file.type.startsWith("image/");
-            const previewUrl = isImage ? URL.createObjectURL(file) : null;
+          {files.map((file) => {
+            const isImage = file.type?.startsWith("image/");
 
             return (
-              <li key={index} className="file-item">
-                {isImage ? (
-                  <img src={previewUrl} alt={file.name} className="file-preview-img" />
-                ) : (
-                  <span className="file-icon">📄</span>
-                )}
-                <span className="file-name">image</span>
-                <button 
+              <li key={file.id} className="file-item">
+                <button
                   type="button"
                   className="file-remove-btn"
-                  onClick={() => handleRemove(index)}
+                  onClick={() => handleRemove(file.id)}
                 >
                   ✕
                 </button>
+                {isImage ? (
+                  <img
+                    src={file.data}
+                    alt={file.name}
+                    className="file-preview-img"
+                  />
+                ) : (
+                  <span className="file-icon">📄</span>
+                )}
+
+                <span className="file-name">
+                  Image
+                </span>
               </li>
             );
           })}
         </ul>
       )}
 
-      {fileError && <p className="login-field-error">{fileError}</p>}
+      {fileError && (
+        <p className="login-field-error">
+          {fileError}
+        </p>
+      )}
 
       <div
         className={`dropzone ${isDragging ? "dragging" : ""}`}
         onDragOver={handleDragOver}
-        onDragLeave={handleDragLEave}
+        onDragLeave={handleDragLeave}
         onDrop={handleDrop}
       >
-        <p className="dropzone-text">Drag & drop your files here</p>
+        <p className="dropzone-text">
+          Drag & drop your files here
+        </p>
+
         <p className="dropzone-or">OR</p>
 
-        <button type="button" className="browse-btn" onClick={handleBrowserClick}>
+        <button
+          type="button"
+          className="browse-btn"
+          onClick={handleBrowserClick}
+        >
           Browse files
         </button>
-        <p className="dropzone-hint">
-          {/* {ALLOWED_FILE_TYPES.map((t) => t.split("/")[1]).join(", ")} · up to{" "} */}
-          {/* {MAX_FILE_SIZE / 1024}KB each · max {MAX_FILES} files */}
-        </p>
+
+        <p className="dropzone-hint"></p>
 
         <input
           type="file"

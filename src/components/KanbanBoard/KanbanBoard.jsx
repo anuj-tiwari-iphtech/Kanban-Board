@@ -6,16 +6,9 @@ import {SortableContext,verticalListSortingStrategy,arrayMove,} from "@dnd-kit/s
 import "./KanbanBoard.css";
 
 
-export default function KanbanBoard({tasks, setTasks, onAddTask}) {
+export default function KanbanBoard({tasks, setTasks, onAddTask, onEditTask, columns, onDeleteColumn}) {
 
   const [activeTask, setActiveTask] = useState(null);
-
-  const columns = [
-    {title: "TO DO",color: "blue",},
-    {title: "IN PROGRESS",color: "yellow",},
-    {title: "REVIEW",color: "blue",},
-    {title: "DONE",color: "green",},
-  ];
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -78,13 +71,14 @@ export default function KanbanBoard({tasks, setTasks, onAddTask}) {
               column={column}
               count={columnTasks.length}
               onAddTask={() => onAddTask(column.title)}
+              onDeleteColumn={() => onDeleteColumn(column.title)}
             >
               <SortableContext
                 items={columnTasks.map((t) => t.id)}
                 strategy={verticalListSortingStrategy}
               >
                 {columnTasks.map((task) => (
-                  <TaskCard key={task.id} task={task} />
+                  <TaskCard key={task.id} task={task} onEdit = {() => onEditTask(task)} />
                 ))}
               </SortableContext>
             </DroppableColumn>
