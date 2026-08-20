@@ -1,11 +1,23 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import {HiOutlineUser,HiOutlineFilter,HiOutlineSortAscending,HiOutlineDotsHorizontal,HiPlus,} from "react-icons/hi";
 import KanbanBoard from "../components/KanbanBoard/KanbanBoard";
 import TaskModal from "../components/AddTaskModal/Modal";
 import useClickOutside from "../customHooks/useClickOutside";
 import useLocalStorage from "../customHooks/useLocalStorage";
-import "./general.css";
 import AddColumnModal from "../components/KanbanBoard/AddColumnModal";
+import "./general.css";
+
+import avatar1 from '../assets/navbar.png';
+import avatar2 from '../assets/avatar2.png';
+import avatar3 from '../assets/avatar3.png';
+
+const demoUsers = [
+  { id: "demo1", name: "Marilyn", email: "marilyn@demo.com", password: "demo123", avatar: avatar1 },
+  { id: "demo2", name: "Alex", email: "alex@demo.com", password: "demo123", avatar: avatar2 },
+  { id: "demo3", name: "Priya", email: "priya@demo.com", password: "demo123", avatar: avatar3 },
+];
+
+
 
 const defaultColumns = [
   { title: "TO DO", color: "blue" },
@@ -15,7 +27,7 @@ const defaultColumns = [
 ];
 
 export default function General() {
-  const [users] = useLocalStorage("kanban-users",[]);
+  const [users, setUsers] = useLocalStorage("kanban-users",[]);
   const [currentUser] = useLocalStorage("kanban-current-user",null);
   const [tasks, setTasks] = useLocalStorage("Kanban-tasks", [])
   const [columns, setColumns] = useLocalStorage("kanban-columns", defaultColumns);
@@ -40,6 +52,12 @@ export default function General() {
   const priorityOrder = {High:1, Medium:2, Low:3}
 
   const columnColors = ["blue", "yellow", "green", "purple", "red"];
+
+  useEffect(() => {
+    if(users.length === 0){
+      setUsers(demoUsers)
+    }
+  },[])
 
   let visibleTasks = tasks.filter((t) => {
     if (isMyTicketsActive) {

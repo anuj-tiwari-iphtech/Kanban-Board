@@ -65,6 +65,10 @@ export default function TaskModal({onClose, onSave, defaultStatus, editingTask, 
 
     
     const handleSave = () => {
+        if(!currentUser){
+            alert("Login or Sign in to use this feature")
+            return;
+        }
         const newTask = {
             id: editingTask?.id || Date.now(),
             name: taskName || "Untitled",
@@ -334,6 +338,7 @@ export default function TaskModal({onClose, onSave, defaultStatus, editingTask, 
                                 >
                                     <img className="navbar-profile" src={user.avatar}/>
                                     {user.name}
+                                    {user.isDemo && <span className="demo-badge">Demo</span>}
                                 </button>
                             ))):(
                                 <p className="no-users-text">No users signed up yet</p>

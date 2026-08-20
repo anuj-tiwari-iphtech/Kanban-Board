@@ -29,6 +29,10 @@ export default function Login() {
   const navigate = useNavigate();
 
   const handleSubmit = (e) => {
+    if(currentUser){
+      alert("User already Exists")
+      return;
+    }
     e.preventDefault();
     setError("");
     setFieldErrors({});
@@ -104,6 +108,10 @@ export default function Login() {
 
         <p className="login-footer-text">
           Don't have an account? <Link to="/sign-up" className="login-link">Sign up</Link>
+        </p>
+
+        <p className="login-demo-hint">
+          Demo login: marilyn@demo.com / demo123
         </p>
 
         <div className="login-divider">
