@@ -26,6 +26,13 @@
     font-family: "DM Sans", sans-serif;
     z-index: 1001;
     transition: width 0.25s ease, max-width 0.25s ease;  
+
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.task-modal::-webkit-scrollbar {
+    display: none;
 }
 
 .task-modal.expanded {
@@ -556,3 +563,48 @@
 .save-btn:active {
     transform: scale(0.98);
 }
+
+.validation-error {
+    color: #e5484d;
+    font-size: 12px;
+    font-family: "DM Sans", sans-serif;
+    margin: 8px 0;
+    padding: 8px 12px;
+    background: #fdeaea;
+    border-radius: 4px;
+  }
+
+  .modal-cancel-btn {
+    margin-left: auto;
+    padding: 10px 10px;
+    border: 1px solid #d7dae0;
+    border-radius: 6px;
+    background: transparent;
+    color: #565e6c;
+    font-family: "DM Sans", sans-serif;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  
+  .modal-cancel-btn:hover {
+    background: #f7f8fa;
+  }
+  
+  .modal-save-btn-top {
+    margin-left: 10px;
+    padding: 10px 16px;
+    border: none;
+    border-radius: 6px;
+    background: #4338ca;
+    color: #ffffff;
+    font-family: "DM Sans", sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s ease;
+  }
+  
+  .modal-save-btn-top:hover {
+    background: #372aad;
+  }

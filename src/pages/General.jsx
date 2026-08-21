@@ -5,6 +5,7 @@ import TaskModal from "../components/AddTaskModal/Modal";
 import useClickOutside from "../customHooks/useClickOutside";
 import useLocalStorage from "../customHooks/useLocalStorage";
 import AddColumnModal from "../components/KanbanBoard/AddColumnModal";
+import { useOutletContext } from "react-router-dom";
 import "./general.css";
 
 import avatar1 from '../assets/navbar.png';
@@ -12,12 +13,10 @@ import avatar2 from '../assets/avatar2.png';
 import avatar3 from '../assets/avatar3.png';
 
 const demoUsers = [
-  { id: "demo1", name: "Marilyn", email: "marilyn@demo.com", password: "demo123", avatar: avatar1 },
-  { id: "demo2", name: "Alex", email: "alex@demo.com", password: "demo123", avatar: avatar2 },
-  { id: "demo3", name: "Priya", email: "priya@demo.com", password: "demo123", avatar: avatar3 },
+  { id: "demo1", name: "Marilyn", email: "marilyn@demo.com", password: "demo123", avatar: avatar1, role: "restricted" },
+  { id: "demo2", name: "Alex", email: "alex@demo.com", password: "demo123", avatar: avatar2, role: "restricted" },
+  { id: "demo3", name: "Priya", email: "priya@demo.com", password: "demo123", avatar: avatar3, role: "restricted" },
 ];
-
-
 
 const defaultColumns = [
   { title: "TO DO", color: "blue" },
@@ -27,8 +26,9 @@ const defaultColumns = [
 ];
 
 export default function General() {
+  const {currentUser} = useOutletContext()
   const [users, setUsers] = useLocalStorage("kanban-users",[]);
-  const [currentUser] = useLocalStorage("kanban-current-user",null);
+  // const [currentUser] = useLocalStorage("kanban-current-user",null);
   const [tasks, setTasks] = useLocalStorage("Kanban-tasks", [])
   const [columns, setColumns] = useLocalStorage("kanban-columns", defaultColumns);
 
@@ -59,7 +59,16 @@ export default function General() {
     }
   },[])
 
+  const isRestricted = currentUser?.role === "restricted";
+
   let visibleTasks = tasks.filter((t) => {
+    if(!currentUser){
+      return false;
+    }
+
+    if(isRestricted){
+      return t.assignee?.id === currentUser?.id
+    }
     if (isMyTicketsActive) {
       return t.assignee?.id === currentUser?.id;
     }
@@ -70,6 +79,11 @@ export default function General() {
   });
 
   const handleActionClick = (action) => {
+    if(!currentUser){
+      alert("Please Login & Signup for this feature")
+      return;
+    }
+
     if (action === "my-tickets" && activeAction === "my-tickets") {
       setActiveAction(null);  
     } else {
@@ -81,6 +95,15 @@ export default function General() {
     }
   };
 
+  const handleMoreClick = () => {
+    if( !currentUser || currentUser?.role === "restricted"){
+      alert("You don't have permission to view this board feature. Contact your admin.")
+      return;
+    }
+    handleActionClick("more")
+    setShowColumnModal(true)
+  }
+
   if (sortOrder) {
     visibleTasks = [...visibleTasks].sort((a,b) => {
       const aValue = priorityOrder[a.priority] || 99;
@@ -90,6 +113,10 @@ export default function General() {
   }
 
   const handleOpenModal = (status = "TO DO") => {
+    if(currentUser?.role === "restricted"){
+      alert("You don't have permission to view this board feature. Contact your admin.")
+      return;
+    }
     setEditingTask(null);
     setDefaultStatus(status)
     setIsModalOpen(true)
@@ -101,12 +128,16 @@ export default function General() {
   }
 
   const handleEditTask = (task) => {
+    if(!currentUser){
+      alert("Please Login & Signup for this feature")
+      return;
+    }
     setEditingTask(task);
     setIsModalOpen(true);
   }
 
   const handleAddTask = (newTask) =>{
-    console.log("Adding task to state:", newTask);
+    // console.log("Adding task to state:", newTask);
     if(editingTask){
       setTasks((prev) => 
         prev.map((t) => (t.id === editingTask.id ? {...newTask, id: editingTask.id} : t) )
@@ -119,6 +150,7 @@ export default function General() {
   }
 
   const handleAddColumn = (title, position) => {
+    
     const alreadyExists = columns.some((c) => c.title === title);
     if(alreadyExists) return;
 
@@ -152,7 +184,7 @@ export default function General() {
         <div className="general-actions">
           <button
             className={`action-btn ${activeAction === "add-task" ? "active" : ""}`}
-            onClick={() => {handleActionClick("add-task"), handleOpenModal()}}
+            onClick={() => {handleActionClick("add-task")}}
           >
             <HiPlus />
             <span>Add task</span>
@@ -166,7 +198,8 @@ export default function General() {
             <span>My Tickets</span>
           </button>
 
-          <div className="filter-wrapper" ref={filterRef}>
+          { currentUser && (
+            <div className="filter-wrapper" ref={filterRef}>
             <button
               className={`action-btn ${activeAction === "filter" ? "active" : ""}`}
               onClick={() => {
@@ -204,8 +237,12 @@ export default function General() {
               </div>
             )}
           </div>
-
-          <div className="sort-wrapper" ref={sortRef}>
+          )
+          }
+          
+          { currentUser &&
+            (
+              <div className="sort-wrapper" ref={sortRef}>
             <button
               className={`action-btn ${activeAction === "sort" ? "active" : ""}`}
               onClick={() => {
@@ -249,13 +286,13 @@ export default function General() {
               )}
 
           </div>
+            )
+          }
+          
 
           <button
             className={`action-btn ${activeAction === "more" ? "active" : ""}`}
-            onClick={() => {
-              handleActionClick("more")
-              setShowColumnModal(true)
-            }}
+            onClick={handleMoreClick}
           >
             <HiOutlineDotsHorizontal />
           </button>

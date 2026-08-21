@@ -3,8 +3,8 @@ import { BsStopwatch } from "react-icons/bs";
 import { useState } from "react";
 import './sidebar.css'
 
-export default function SidebarMenu2() {
-    const[active, setActive] = useState()
+export default function SidebarMenu2({active, setActive}) {
+    // const[active, setActive] = useState()
     const items = [
         {label: "Published", icon: <HiOutlineCheckCircle/>},
         {label: "Today's Scheduled", icon: <BsStopwatch/>},

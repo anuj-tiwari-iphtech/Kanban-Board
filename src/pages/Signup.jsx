@@ -69,6 +69,7 @@ export default function SignUp() {
       email: validEmail,
       password: validPassword,
       avatar: generateAvatarUrl(validEmail),
+      role : "admin",
     };
 
     setUsers((prev) => [...prev, newUser]);

@@ -10,8 +10,8 @@ import { NavLink } from "react-router-dom";
 
 import "./sidebar.css";
 
-export default function SidebarMenu1() {
-  const [active, setActive] = useState("General");
+export default function SidebarMenu1({active, setActive}) {
+  // const [active, setActive] = useState("General");
 
   const menuItems = [
     { label: "General", icon: <HiHome />, path:"/" },
@@ -28,8 +28,8 @@ export default function SidebarMenu1() {
         <NavLink
           key={item.label}
           to={item.path}
-          className={({ isActive }) =>
-            `menu-item indent ${isActive ? "selected" : ""}`
+          className={
+            `menu-item indent ${active === item.label ? "selected" : ""}`
           }
           onClick={() => setActive(item.label)}
         >

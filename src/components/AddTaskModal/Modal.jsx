@@ -62,13 +62,44 @@ export default function TaskModal({onClose, onSave, defaultStatus, editingTask, 
     const [showAddProprtyMenu, setShowAddPropertyMenu] = useState(false)
     const [assignee, setAssignee] = useState(editingTask?.assignee || null)
     const [showAssignee, setShowAssignee] = useState(false)
+    const [validationError, setValidationError] = useState("")
+
+    const labelMenuRef = useRef(null);
+    const priorityRef = useRef(null);
+    const statusRef = useRef(null);
+    const dateRef = useRef(null);
+    const addPropertyRef  = useRef(null);
+    const assigneeRef = useRef(null);
+
+    useClickOutside(labelMenuRef, () => setShowLabels(false))
+    useClickOutside(priorityRef, () => setShowPriority(false))
+    useClickOutside(statusRef, () => setShowStatus(false))
+    useClickOutside(dateRef, () => setShoeDatePicker(false))
+    useClickOutside(addPropertyRef, () => setShowAddPropertyMenu(false))
+    useClickOutside(assigneeRef, () => setShowAssignee(false))
 
     
     const handleSave = () => {
-        if(!currentUser){
-            alert("Login or Sign in to use this feature")
+
+        const missingField = [];
+
+        if(!taskName.trim()) missingField.push("Task Name")
+        if(labels.length === 0) missingField.push("Label")
+        if(!dueDate) missingField.push("Due Date")
+        if(!priority) missingField.push("Priority")
+        if(!status) missingField.push("Status")
+        if(!assignee) missingField.push("Assignee")
+
+        if (missingField.length > 0) {
+            setValidationError(`Please fill: ${missingField.join(", ")}`);
+            if (missingField.includes("Assignee") && !visibleProperties.includes("assignee")) {
+                setVisibleProperties((prev) => [...prev, "assignee"]);   
+            }
             return;
         }
+        
+        setValidationError("");
+
         const newTask = {
             id: editingTask?.id || Date.now(),
             name: taskName || "Untitled",
@@ -85,25 +116,11 @@ export default function TaskModal({onClose, onSave, defaultStatus, editingTask, 
         };
         console.log("Saving task:", newTask);
         onSave(newTask);
-      };
+    };
 
-      const labelMenuRef = useRef(null);
-      const priorityRef = useRef(null);
-      const statusRef = useRef(null);
-      const dateRef = useRef(null);
-      const addPropertyRef  = useRef(null);
-      const assigneeRef = useRef(null);
-
-      useClickOutside(labelMenuRef, () => setShowLabels(false))
-      useClickOutside(priorityRef, () => setShowPriority(false))
-      useClickOutside(statusRef, () => setShowStatus(false))
-      useClickOutside(dateRef, () => setShoeDatePicker(false))
-      useClickOutside(addPropertyRef, () => setShowAddPropertyMenu(false))
-      useClickOutside(assigneeRef, () => setShowAssignee(false))
-
-      const handleAddComment = () => {
+    const handleAddComment = () => {
         if(commentInput.trim() === "") return;
-        
+    
         const newComment = {
             id : Date.now(),
             name :  currentUser?.name || "You",
@@ -117,21 +134,18 @@ export default function TaskModal({onClose, onSave, defaultStatus, editingTask, 
             likes:0,
             liked:false,
         }
-
         setComments((prev) => [...prev, newComment])
         setCommentInput("")
-      }
+    }
 
-      const allExtraProperties = [
-        {key: "assignee", label: "Assignee"}
-      ]
+    const allExtraProperties = [{key: "assignee", label: "Assignee"}]
 
-      const handleAddProperty = (key) => {
+    const handleAddProperty = (key) => {
         setVisibleProperties((prev) => [...prev, key])
         setShowAddPropertyMenu(false)
-      }
+    }
 
-      const handleLikeToggle = (commentId) => {
+    const handleLikeToggle = (commentId) => {
         setComments((prev) =>
             prev.map((c) =>
                 c.id === commentId
@@ -139,15 +153,28 @@ export default function TaskModal({onClose, onSave, defaultStatus, editingTask, 
                     : c
             )
         );
-      };
+    };
+
+    const today = new Date();
+    const todayString = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
 
   return (
     <div className={`modal-overlay ${isExpanded ? "expanded" : ""}`} onClick={onClose}>
         <div className={`task-modal ${isExpanded ? "expanded" : ""}`}
          onClick={(e) => e.stopPropagation()}>
         <div className={`task-wrap ${isExpanded ? "expanded" : ""}`}>
-
-            <div className="modal-icon-row">
+        <div className="modal-icon-row">
+            { isExpanded? (
+                <>
+                <button className="modal-cancel-btn" onClick={onClose}>
+                    Cancel
+                </button>
+                <button className="modal-save-btn-top" onClick={handleSave}>
+                    Save
+                </button>
+                </>
+            ):(
+                <>
                 <HiOutlineArrowsExpand 
                     className="modal-icon-left"
                     onClick={() => setIsExpanded((prev) => !prev)}
@@ -156,7 +183,10 @@ export default function TaskModal({onClose, onSave, defaultStatus, editingTask, 
                     <HiOutlineDotsHorizontal/>
                     <HiOutlineX onClick={onClose}/>
                 </div>
-            </div>
+                </>
+            )}
+        </div>
+            
 
             <p className="modal-breadcrumb">General</p>
             <input 
@@ -204,10 +234,6 @@ export default function TaskModal({onClose, onSave, defaultStatus, editingTask, 
                                     )
                                 }}
                             > 
-                                {/* <span
-                                    className="label-color-dot"
-                                    style={{backgroundColor: label.color}}
-                                /> */}
                                 {label.name}
                             </button>
                         ))}
@@ -231,8 +257,10 @@ export default function TaskModal({onClose, onSave, defaultStatus, editingTask, 
                             <input
                                 type="date"
                                 className="date-input"
+                                min={todayString}
                                 onChange={(e) => {
-                                    const formatted = new Date(e.target.value).toLocaleDateString("en-Us", {
+                                    if(!e.target.value) return;
+                                    const formatted = new Date(e.target.value + "T00:00:00").toLocaleDateString("en-Us", {
                                         month: "numeric",
                                         day : "numeric",
                                         year : "numeric",
@@ -303,7 +331,6 @@ export default function TaskModal({onClose, onSave, defaultStatus, editingTask, 
                                     setShowStatus(false);
                                 }}
                             >
-                                {/* {status === item && "✓ "} */}
                                 {item}
                             </button>
                         ))}
@@ -420,9 +447,16 @@ export default function TaskModal({onClose, onSave, defaultStatus, editingTask, 
                 ))}
             </div>
 
-            <button className="save-btn" onClick={handleSave}>
+            {validationError && (
+                <p className="validation-error">{validationError}</p>
+            )}
+
+            { !isExpanded &&
+                (<button className="save-btn" onClick={handleSave}>
                 Save
-            </button>
+                </button>)
+            }
+            
         </div>
         </div>
     </div>

@@ -1,176 +1,202 @@
 .navbar{
-    height: 70px;
-    width: 100%;
-
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 20px;
-    background-color: #ffffff;
-    border-bottom: 1px solid #e5e7eb;
+  height: 70px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  background-color: #ffffff;
+  border-bottom: 1px solid #e5e7eb;
 }
 
-.navbar-search{
-    width: 520px;
-    height: 38px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 0 12px;
-    background-color: #f3f4f6;
-    border-radius: 4px;
+.navbar-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  max-width: 520px;
 }
 
-.search-icon{
-    width: 18px;
-    height: 18px;
-    color: #9ca3af;
+.mobile-menu-btn {
+  display: none;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: #565e6c;
+  padding: 4px;
 }
 
-.navbar-search input{
-    width: 100%;
-    border: none;
-    outline: none;
-    background: transparent;
-
-    font-family:  "DM Sans", sans-serif;
-    font-size: 14px;
+.mobile-menu-btn svg {
+  width: 24px;
+  height: 24px;
 }
 
-.navbar-search input::placeholder{
-    color: #9ca3af;
-}
-
-.navbar-actions{
-    display: flex;
-    align-items: center;
-    gap: 18px;
-}
-
-.navbar-icon{
+@media (max-width: 900px) {
+  .mobile-menu-btn {
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 0;
-    border: none;
-    background: transparent;
-    color: #9ca3af;
-    cursor: pointer;
+  }
+}
+
+.navbar-search{
+  width: 100%;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 12px;
+  background-color: #f3f4f6;
+  border-radius: 4px;
+}
+
+.search-icon{
+  width: 18px;
+  height: 18px;
+  color: #9ca3af;
+  flex-shrink: 0;
+}
+
+.navbar-search input{
+  width: 100%;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-family: "DM Sans", sans-serif;
+  font-size: 14px;
+}
+
+.navbar-search input::placeholder{
+  color: #9ca3af;
+}
+
+.navbar-actions{
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  flex-shrink: 0;
+}
+
+.navbar-icon{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: #9ca3af;
+  cursor: pointer;
 }
 
 .navbar-icon svg{
-    width: 24px;
-    height: 24px;
+  width: 24px;
+  height: 24px;
 }
 
 .navbar-profile-wrapper {
-    position: relative;   /* NEW — dropdown yahan se position hoga */
-    cursor: pointer;
-  }
-  
-  .navbar-profile {
-    width: 32px;
-    height: 32px;
-    overflow: hidden;      /* ye sirf image crop ke liye hi rahega */
-    border-radius: 50%;
-  }
-  
-  .navbar-profile img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-  
-  .profile-menu {
-    position: absolute;
-    top: calc(100% + 10px);
-    right: 0;
-    width: 220px;
-    background: #ffffff;
-    border: 1px solid #eceef1;
-    border-radius: 8px;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
-    padding: 8px;
-    z-index: 100;
-  }
-  
+  position: relative;
+  cursor: pointer;
+}
 
-  .profile-menu-header {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 8px;
-  }
-  
-  .profile-menu-avatar {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    object-fit: cover;
-  }
-  
-  .profile-menu-name {
-    font-family: "DM Sans", sans-serif;
-    font-size: 13px;
-    font-weight: 700;
-    color: #171a1f;
-    margin: 0;
-  }
-  
-  .profile-menu-email {
-    font-family: "DM Sans", sans-serif;
-    font-size: 12px;
-    color: #8b95a7;
-    margin: 0;
-  }
-  
-  .profile-menu-divider {
-    height: 1px;
-    background: #eceef1;
-    margin: 6px 0;
-  }
+.navbar-profile {
+  width: 32px;
+  height: 32px;
+  overflow: hidden;
+  border-radius: 50%;
+}
 
-  
-  .profile-menu-item {
-    text-decoration: none;
-    width: 100%;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 8px 10px;
-    border: none;
-    background: transparent;
-    border-radius: 4px;
-    font-family: "DM Sans", sans-serif;
-    font-size: 13px;
-    color: #171a1f;
-    cursor: pointer;
-    text-align: left;
-    transition: background 0.2s ease;
-  }
+.navbar-profile img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
 
-  
-  .profile-menu-item svg {
-    width: 16px;
-    height: 16px;
-    color: #8b95a7;
-  }
-  
-  .profile-menu-item:hover {
-    background: #f5f3ff;
-    color: #4338ca;
-  }
-  
-  .profile-menu-item:hover svg {
-    color: #4338ca;
-  }
-  
-  .profile-menu-item.logout:hover {
-    background: #fef2f2;
-    color: #e5484d;
-  }
-  
-  .profile-menu-item.logout:hover svg {
-    color: #e5484d;
-  }
+.profile-menu {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  width: 220px;
+  background: #ffffff;
+  border: 1px solid #eceef1;
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  padding: 8px;
+  z-index: 100;
+}
 
+.profile-menu-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px;
+}
+
+.profile-menu-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.profile-menu-name {
+  font-family: "DM Sans", sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  color: #171a1f;
+  margin: 0;
+}
+
+.profile-menu-email {
+  font-family: "DM Sans", sans-serif;
+  font-size: 12px;
+  color: #8b95a7;
+  margin: 0;
+}
+
+.profile-menu-divider {
+  height: 1px;
+  background: #eceef1;
+  margin: 6px 0;
+}
+
+.profile-menu-item {
+  text-decoration: none;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border: none;
+  background: transparent;
+  border-radius: 4px;
+  font-family: "DM Sans", sans-serif;
+  font-size: 13px;
+  color: #171a1f;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.2s ease;
+}
+
+.profile-menu-item svg {
+  width: 16px;
+  height: 16px;
+  color: #8b95a7;
+}
+
+.profile-menu-item:hover {
+  background: #f5f3ff;
+  color: #4338ca;
+}
+
+.profile-menu-item:hover svg {
+  color: #4338ca;
+}
+
+.profile-menu-item.logout:hover {
+  background: #fef2f2;
+  color: #e5484d;
+}
+
+.profile-menu-item.logout:hover svg {
+  color: #e5484d;
+}

@@ -1,15 +1,20 @@
 .dashboard {
     display: flex;
     min-height: 100vh;
-}
-
-/* .sidebar-container {
-    width: 300px;
-    min-width: 300px;
-    min-height: 100vh;
-} */
-
-.dashnoard-main {
+    width: 100%;
+    position: relative;
+    overflow-x: hidden;
+  }
+  
+  .dashnoard-main {
     flex: 1;
     min-width: 0;
-}
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .dashboard-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
