@@ -5,9 +5,8 @@ import { useState } from "react";
 import useLocalStorage from "../customHooks/useLocalStorage";
 import './dashboard.css'
 
-export default function Dashboard() {
+export default function Dashboard({currentUser, setCurrentUser}) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
-  const [currentUser , setCurrentUser] = useLocalStorage("kanban-current-user", null)
   const toggleSidebar = () => {
     setIsSidebarOpen((prev) => !prev);
   };

@@ -17,9 +17,9 @@ const loginSchema = z.object({
     .min(6, "Password must be at least 6 characters"),
 });
 
-export default function Login() {
+export default function Login({currentUser, setCurrentUser}) {
   const [users] = useLocalStorage("kanban-users", []);
-  const [currentUser, setCurrentUser] = useLocalStorage("kanban-current-user", null);
+  // const [currentUser, setCurrentUser] = useLocalStorage("kanban-current-user", null);
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");

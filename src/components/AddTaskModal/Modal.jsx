@@ -32,20 +32,21 @@ const colorHexMap = {
     red: "#e5484d",
 };
 
-
-
 export default function TaskModal({onClose, onSave, defaultStatus, editingTask, columns}) {
     const [users] = useLocalStorage("kanban-users", []); 
     const [currentUser] = useLocalStorage("kanban-current-user", null);
 
-    const statusOptions = columns.map((c) => c.title);
-    const statusConfig = columns.reduce((acc, c) => {
-        acc[c.title] = { color: colorHexMap[c.color] || "#8b95a7" };
-        return acc;
-    }, {});
+    const statusOptions = columns.map((column) => column.title);
+    const initialStatus =
+     editingTask?.status && statusOptions.includes(editingTask.status)
+    ? editingTask.status
+    : defaultStatus && statusOptions.includes(defaultStatus)
+    ? defaultStatus
+    : statusOptions[0] || "";
+
 
     const [attachedFiles, setAttachedFiles] = useState( editingTask?.attachments || []);
-    const [status, setStatus] = useState( editingTask?.status ||defaultStatus || statusOptions[0] || "TO DO")
+    const [status, setStatus] = useState(initialStatus);
     const [taskName, setTaskName] = useState( editingTask?.name || "")
     const [isExpanded, setIsExpanded] = useState(false)
     const [labels, setLabels] = useState( editingTask?.labels || [])
@@ -88,13 +89,9 @@ export default function TaskModal({onClose, onSave, defaultStatus, editingTask, 
         if(!dueDate) missingField.push("Due Date")
         if(!priority) missingField.push("Priority")
         if(!status) missingField.push("Status")
-        if(!assignee) missingField.push("Assignee")
 
         if (missingField.length > 0) {
             setValidationError(`Please fill: ${missingField.join(", ")}`);
-            if (missingField.includes("Assignee") && !visibleProperties.includes("assignee")) {
-                setVisibleProperties((prev) => [...prev, "assignee"]);   
-            }
             return;
         }
         
@@ -157,6 +154,10 @@ export default function TaskModal({onClose, onSave, defaultStatus, editingTask, 
 
     const today = new Date();
     const todayString = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
+
+    const selectedColumn = columns.find(
+        (column) => column.title === status
+      );
 
   return (
     <div className={`modal-overlay ${isExpanded ? "expanded" : ""}`} onClick={onClose}>
@@ -313,7 +314,7 @@ export default function TaskModal({onClose, onSave, defaultStatus, editingTask, 
                     onClick={() => setShowStatus((prev) => !prev)}
                 >
                 {status ? (
-                    <span className="selected-value" style={{color : statusConfig[status].color}}>{status}</span>
+                    <span className={`selected-value ${selectedColumn?.color || ""}`} >{status}</span>
                 ): (
                     <><HiPlus/>Add Status</>
                 )}

@@ -26,7 +26,6 @@ const signUpSchema = z.object({
 
 export default function SignUp() {
   const [users, setUsers] = useLocalStorage("kanban-users", []);
-  const [currentUser, setCurrentUser] = useLocalStorage("kanban-current-user", null);
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");

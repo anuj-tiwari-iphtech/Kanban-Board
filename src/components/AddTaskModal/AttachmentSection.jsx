@@ -1,10 +1,12 @@
 import { useState, useRef } from "react";
 import {validateFiles,ALLOWED_FILE_TYPES,MAX_FILE_SIZE,MAX_FILES,} from "../../utils/fileValidation";
 import { fileToDataUrl } from "../../utils/fileToDataUrl";
+import { HiX, HiOutlinePaperClip } from "react-icons/hi";
 
 export default function AttachmentSection({ files, setFiles }) {
   const [isDragging, setIsDragging] = useState(false);
   const [fileError, setFileError] = useState("");
+  const [previewImage, setPreviewImage] = useState(null)
   const fileInputRef = useRef(null);
 
   const handleDragOver = (e) => {
@@ -102,6 +104,7 @@ export default function AttachmentSection({ files, setFiles }) {
                     src={file.data}
                     alt={file.name}
                     className="file-preview-img"
+                    onClick={() => setPreviewImage(file)}
                   />
                 ) : (
                   <span className="file-icon">📄</span>
@@ -153,6 +156,19 @@ export default function AttachmentSection({ files, setFiles }) {
           style={{ display: "none" }}
         />
       </div>
+
+      {previewImage && (
+        <div className="image-preview-overlay" onClick={() => setPreviewImage(null)}>
+          <div className="image-preview-modal">
+            <button type="button" className="image-preview-close" onClick={() => setPreviewImage(null)}>
+              <HiX/>
+            </button>
+
+            <img src={previewImage.data} alt={previewImage.name} className="image-preview-large"/>
+            <div className="image-preview-name">{previewImage.name}</div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

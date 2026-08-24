@@ -6,6 +6,7 @@ import useClickOutside from "../customHooks/useClickOutside";
 import useLocalStorage from "../customHooks/useLocalStorage";
 import AddColumnModal from "../components/KanbanBoard/AddColumnModal";
 import { useOutletContext } from "react-router-dom";
+import { useAlert } from "../components/AlertModal/AlertContext";
 import "./general.css";
 
 import avatar1 from '../assets/navbar.png';
@@ -28,7 +29,6 @@ const defaultColumns = [
 export default function General() {
   const {currentUser} = useOutletContext()
   const [users, setUsers] = useLocalStorage("kanban-users",[]);
-  // const [currentUser] = useLocalStorage("kanban-current-user",null);
   const [tasks, setTasks] = useLocalStorage("Kanban-tasks", [])
   const [columns, setColumns] = useLocalStorage("kanban-columns", defaultColumns);
 
@@ -41,6 +41,8 @@ export default function General() {
   const [showSortMenu, setShowSortMenu] = useState(false)
   const [editingTask, setEditingTask] = useState(null);
   const [showColumnModal, setShowColumnModal] = useState(false)
+
+  const {showAlert} = useAlert()
 
   const filterRef = useRef(null);
   const sortRef = useRef(null)
@@ -58,6 +60,12 @@ export default function General() {
       setUsers(demoUsers)
     }
   },[])
+
+  useEffect(() => {
+    if (columns.length === 0) {
+      setColumns(defaultColumns);
+    }
+  }, [columns, setColumns]);
 
   const isRestricted = currentUser?.role === "restricted";
 
@@ -80,7 +88,7 @@ export default function General() {
 
   const handleActionClick = (action) => {
     if(!currentUser){
-      alert("Please Login & Signup for this feature")
+      showAlert("Please Login & Signup for this feature")
       return;
     }
 
@@ -97,7 +105,7 @@ export default function General() {
 
   const handleMoreClick = () => {
     if( !currentUser || currentUser?.role === "restricted"){
-      alert("You don't have permission to view this board feature. Contact your admin.")
+      showAlert("You don't have permission to view this board feature. Contact your admin.")
       return;
     }
     handleActionClick("more")
@@ -114,17 +122,12 @@ export default function General() {
 
   const handleOpenModal = (status = "TO DO") => {
     if(currentUser?.role === "restricted"){
-      alert("You don't have permission to view this board feature. Contact your admin.")
+      showAlert("You don't have permission to view this board feature. Contact your admin.")
       return;
     }
     setEditingTask(null);
     setDefaultStatus(status)
     setIsModalOpen(true)
-  }
-  
-  const handleModalClose = () => {
-    setIsModalOpen(false)
-    setActiveAction(null)
   }
 
   const handleEditTask = (task) => {
