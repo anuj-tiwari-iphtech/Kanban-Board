@@ -3,12 +3,10 @@ import { Link } from "react-router-dom";
 import { HiOutlineSearch, HiOutlineCog, HiOutlineBell, HiOutlineUser, HiOutlineLogin, HiOutlineLogout, HiOutlineUserAdd, HiMenu } from "react-icons/hi";
 import profile from '../../assets/avatar2.png';
 import useClickOutside from "../../customHooks/useClickOutside";
-import useLocalStorage from "../../customHooks/useLocalStorage";
 import './navbar.css';
 
-export default function Navbar({ currentUser, setCurrentUser, toggleSidebar }) {
+export default function Navbar({ currentUser, setCurrentUser, toggleSidebar, searchTerm, setSearchTerm }) {
   const [showProfileMenu, setShowProfileMenu] = useState(false);
-  // const [currentUser, setCurrentUser] = useLocalStorage("kanban-current-user", null)
   const profileRef = useRef(null);
 
   useClickOutside(profileRef, () => setShowProfileMenu(false));
@@ -26,7 +24,12 @@ export default function Navbar({ currentUser, setCurrentUser, toggleSidebar }) {
         </button>
         <div className="navbar-search">
           <HiOutlineSearch className="search-icon" />
-          <input type="text" placeholder="Search" />
+          <input 
+          type="text" 
+          placeholder="Search" 
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          />
         </div>
       </div>
 

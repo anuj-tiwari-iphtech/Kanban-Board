@@ -1,16 +1,25 @@
-# React + Vite
+# Kanban Board
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A React-based Kanban task management application for organizing tasks, users, sprints, and project progress.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- User authentication with Login / Sign Up / Logout
+- Kanban board with customizable columns and task management
+- Create, edit, delete, and assign tasks
+- Task labels, priority, status, due dates, descriptions, comments, and attachments
+- Image preview for task attachments
+- User assignment and role-based restrictions
+- Search and filter tasks/users
+- Sprint management with task assignment and backlog
+- Today's Scheduled, Published, and Bookmark task categories
+- Responsive sidebar and navigation
+- Data persistence using Local Storage
 
-## React Compiler
+## How to Run
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### 1. Install dependencies
 
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+```bash
+npm install
+```

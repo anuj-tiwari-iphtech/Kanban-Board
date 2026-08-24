@@ -5,8 +5,7 @@ import { DndContext,DragOverlay,closestCorners,PointerSensor,useSensor, useSenso
 import {SortableContext,verticalListSortingStrategy,arrayMove,} from "@dnd-kit/sortable";
 import "./KanbanBoard.css";
 
-
-export default function KanbanBoard({tasks, setTasks, onAddTask, onEditTask, columns, onDeleteColumn}) {
+export default function KanbanBoard({tasks, setTasks, onAddTask, onEditTask, columns, onDeleteColumn, searchTerm}) {
 
   const [activeTask, setActiveTask] = useState(null);
 
@@ -54,6 +53,17 @@ export default function KanbanBoard({tasks, setTasks, onAddTask, onEditTask, col
     }
   }
 
+  const filteredTasks = tasks.filter((task) => {
+    const search = searchTerm?.toLowerCase().trim();
+  
+    if (!search) return true;
+  
+    return (
+      task.name?.toLowerCase().includes(search) ||
+      task.description?.toLowerCase().includes(search)
+    );
+  });
+
   return (
     <DndContext
       sensors={sensors}
@@ -63,7 +73,7 @@ export default function KanbanBoard({tasks, setTasks, onAddTask, onEditTask, col
     >
       <div className="kanban-board">
         {columns.map((column) => {
-          const columnTasks = tasks.filter((t) => t.status === column.title);
+          const columnTasks = filteredTasks.filter((t) => t.status === column.title);
 
           return (
             <DroppableColumn

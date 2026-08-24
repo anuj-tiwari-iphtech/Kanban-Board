@@ -28,6 +28,7 @@ const defaultColumns = [
 
 export default function General() {
   const {currentUser} = useOutletContext()
+  const {searchTerm} = useOutletContext()
   const [users, setUsers] = useLocalStorage("kanban-users",[]);
   const [tasks, setTasks] = useLocalStorage("Kanban-tasks", [])
   const [columns, setColumns] = useLocalStorage("kanban-columns", defaultColumns);
@@ -310,6 +311,7 @@ export default function General() {
           onEditTask={handleEditTask}
           columns={columns}
           onDeleteColumn={handleDeleteColumn}
+          searchTerm={searchTerm}
         />
 
           {
