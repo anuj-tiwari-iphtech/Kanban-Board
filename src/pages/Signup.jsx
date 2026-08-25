@@ -2,7 +2,11 @@ import { useState } from "react";
 import { FcGoogle } from "react-icons/fc";
 import { Link, useNavigate } from "react-router-dom";
 import { z } from "zod";
-import useLocalStorage from "../customHooks/useLocalStorage";
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import { doc, setDoc } from "firebase/firestore";
+import { auth, db } from "../Firebase/firebase";
+import { useAlert } from "../components/AlertModal/AlertContext";
+import { signOut } from "firebase/auth";
 import "./Login.css";
 
 const generateAvatarUrl = (seed) => {
@@ -25,17 +29,18 @@ const signUpSchema = z.object({
 });
 
 export default function SignUp() {
-  const [users, setUsers] = useLocalStorage("kanban-users", []);
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fieldErrors, setFieldErrors] = useState({});
   const [error, setError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const navigate = useNavigate();
+  const {showAlert} = useAlert();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
     setFieldErrors({});
@@ -54,27 +59,43 @@ export default function SignUp() {
 
     const { name: validName, email: validEmail, password: validPassword } = result.data;
 
-    const alreadyExists = users.some(
-      (u) => u.email.toLowerCase() === validEmail.toLowerCase()
-    );
-    if (alreadyExists) {
-      setError("An account with this email already exists");
-      return;
-    }
+    setIsSubmitting(true);
 
-    const newUser = {
-      id: `u_${Date.now()}`,
-      name: validName,
+   try {
+    const userCredential = await createUserWithEmailAndPassword(auth, validEmail, validPassword)
+    const uid = userCredential.user.uid;
+
+    await setDoc(doc(db, "users", uid), {
+      name : validName,
       email: validEmail,
-      password: validPassword,
-      avatar: generateAvatarUrl(validEmail),
+      avatar : generateAvatarUrl(validEmail),
       role : "admin",
-    };
+    })
 
-    setUsers((prev) => [...prev, newUser]);
-    navigate("/login");
-  };
+      await signOut(auth);
+    showAlert("Account created successfully! Please Login", "success");
+    navigate('/login')
+   } catch (err) {
+    console.error("SIGNUP ERROR:", err);
+    console.error("ERROR CODE:", err.code);
+    console.error("ERROR MESSAGE:", err.message);
+  
+    if (err.code === "auth/email-already-in-use") {
+      setError("An account with this email already exists");
+    } else if (err.code === "auth/weak-password") {
+      setError("Password is too weak");
+    } else if (err.code === "auth/invalid-email") {
+      setError("Invalid email address");
+    } else if (err.code === "permission-denied") {
+      setError("Firestore permission denied. Check your Firestore rules.");
+    } else {
+      setError(err.message || "Something went wrong. Please try again");
+    }
+  } finally {
+    setIsSubmitting(false);
+  }
 
+  }
   return (
     <div className="login-page">
       <div className="login-card">

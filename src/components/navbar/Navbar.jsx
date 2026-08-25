@@ -1,19 +1,30 @@
 import { useState, useRef } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { HiOutlineSearch, HiOutlineCog, HiOutlineBell, HiOutlineUser, HiOutlineLogin, HiOutlineLogout, HiOutlineUserAdd, HiMenu } from "react-icons/hi";
+import { signOut } from "firebase/auth";
+import { auth } from "../../Firebase/firebase";
+import { useAuthContext } from "../../auth/AuthContext";
 import profile from '../../assets/avatar2.png';
 import useClickOutside from "../../customHooks/useClickOutside";
 import './navbar.css';
 
-export default function Navbar({ currentUser, setCurrentUser, toggleSidebar, searchTerm, setSearchTerm }) {
+export default function Navbar({ toggleSidebar, searchTerm, setSearchTerm }) {
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const profileRef = useRef(null);
+  const navigate = useNavigate()
+
+  const {currentUser, loading} = useAuthContext();
 
   useClickOutside(profileRef, () => setShowProfileMenu(false));
 
-  const handleLogout = () => {
-    setCurrentUser(null);
-    // setShowProfileMenu(false);
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      setShowProfileMenu(false);
+      // navigate("/login")
+    } catch (error){
+      console.error("Logout error:", error);
+    }
   }
 
   return (
@@ -36,10 +47,6 @@ export default function Navbar({ currentUser, setCurrentUser, toggleSidebar, sea
       <div className="navbar-actions">
         <Link to="/setting" className="navbar-icon" type="button">
           <HiOutlineCog />
-        </Link>
-
-        <Link to="/indox" className="navbar-icon" type="button">
-          <HiOutlineBell />
         </Link>
 
         <div className="navbar-profile-wrapper" ref={profileRef}>

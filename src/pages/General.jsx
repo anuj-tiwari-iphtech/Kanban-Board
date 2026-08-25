@@ -1,23 +1,16 @@
 import { useState, useRef, useEffect } from "react";
 import {HiOutlineUser,HiOutlineFilter,HiOutlineSortAscending,HiOutlineDotsHorizontal,HiPlus,} from "react-icons/hi";
+import { useOutletContext } from "react-router-dom";
+import { useAlert } from "../components/AlertModal/AlertContext";
+import { useAuthContext } from "../auth/AuthContext";
+import { writeBatch, doc, collection } from "firebase/firestore";
+import { db } from "../Firebase/firebase";
+import useFirestoreCollection from "../Firebase/useFirestoreCollection";
 import KanbanBoard from "../components/KanbanBoard/KanbanBoard";
 import TaskModal from "../components/AddTaskModal/Modal";
 import useClickOutside from "../customHooks/useClickOutside";
-import useLocalStorage from "../customHooks/useLocalStorage";
 import AddColumnModal from "../components/KanbanBoard/AddColumnModal";
-import { useOutletContext } from "react-router-dom";
-import { useAlert } from "../components/AlertModal/AlertContext";
 import "./general.css";
-
-import avatar1 from '../assets/navbar.png';
-import avatar2 from '../assets/avatar2.png';
-import avatar3 from '../assets/avatar3.png';
-
-const demoUsers = [
-  { id: "demo1", name: "Marilyn", email: "marilyn@demo.com", password: "demo123", avatar: avatar1, role: "restricted" },
-  { id: "demo2", name: "Alex", email: "alex@demo.com", password: "demo123", avatar: avatar2, role: "restricted" },
-  { id: "demo3", name: "Priya", email: "priya@demo.com", password: "demo123", avatar: avatar3, role: "restricted" },
-];
 
 const defaultColumns = [
   { title: "TO DO", color: "blue" },
@@ -27,11 +20,24 @@ const defaultColumns = [
 ];
 
 export default function General() {
-  const {currentUser} = useOutletContext()
+  const {currentUser} = useAuthContext()
   const {searchTerm} = useOutletContext()
-  const [users, setUsers] = useLocalStorage("kanban-users",[]);
-  const [tasks, setTasks] = useLocalStorage("Kanban-tasks", [])
-  const [columns, setColumns] = useLocalStorage("kanban-columns", defaultColumns);
+
+  const {
+    data: tasks,
+    loading: taskLoading,
+    add : addTask,
+    update : updateTask,
+    remove : deleteTask,
+  } = useFirestoreCollection("tasks",currentUser?.id)
+  
+  const {
+    data:columns,
+    loading: columnLoading,
+    add: addColumn,
+    update: updateColumn,
+    remove: deleteColumn,
+  } = useFirestoreCollection("columns", currentUser?.id)
 
   const [activeAction, setActiveAction] = useState();
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -57,16 +63,33 @@ export default function General() {
   const columnColors = ["blue", "yellow", "green", "purple", "red"];
 
   useEffect(() => {
-    if(users.length === 0){
-      setUsers(demoUsers)
-    }
-  },[])
+    if (!currentUser?.id || columnLoading || (columns && columns.length > 0)) return;
+  
+    const seedDefaultColumns = async () => {
+      try {
+        const batch = writeBatch(db);
+  
+        defaultColumns.forEach((col) => {
+          const colRef = doc(collection(db, "columns"));
+          batch.set(colRef, {
+            ...col,
+            userId: currentUser.id,
+          });
+        });
+  
+        await batch.commit();
+      } catch (error) {
+        console.error("Error seeding default columns:", error);
+      }
+    };
+    seedDefaultColumns();
+  }, [currentUser?.id, columnLoading, columns]);
 
-  useEffect(() => {
-    if (columns.length === 0) {
-      setColumns(defaultColumns);
-    }
-  }, [columns, setColumns]);
+  const activeColumns = columns && columns.length > 0 ? columns : defaultColumns;
+
+    const sortedColumns = [...activeColumns].sort(
+      (a, b) => (a.position ?? 0) - (b.position ?? 0)
+    );
 
   const isRestricted = currentUser?.role === "restricted";
 
@@ -140,45 +163,85 @@ export default function General() {
     setIsModalOpen(true);
   }
 
-  const handleAddTask = (newTask) =>{
-    // console.log("Adding task to state:", newTask);
-    if(editingTask){
-      setTasks((prev) => 
-        prev.map((t) => (t.id === editingTask.id ? {...newTask, id: editingTask.id} : t) )
-      )
-    }else{
-      setTasks((prev) => [...prev, newTask]);
+  const handleAddTask = async (newTask) => {
+    try {
+      if (editingTask) {
+        await updateTask(
+          editingTask.id,
+          newTask
+        );
+  
+        showAlert("Task updated successfully!","success");
+      } else {
+        await addTask(newTask);
+        showAlert("Task created successfully!","success");
+      }
+  
+      setIsModalOpen(false);
+      setEditingTask(null);
+    } catch (error) {
+      console.error("Error saving task:", error);
+      showAlert( "Failed to save task.","error");
     }
-    setIsModalOpen(false)
-    setEditingTask(null)
-  }
+  };
 
-  const handleAddColumn = (title, position) => {
-    
-    const alreadyExists = columns.some((c) => c.title === title);
-    if(alreadyExists) return;
-
+  const handleAddColumn = async (title, position) => {
+    const alreadyExists = columns.some(
+      (column) => column.title === title
+    );
+  
+    if (alreadyExists) {
+      showAlert(
+        "A column with this name already exists.",
+        "error"
+      );
+      return;
+    }
+  
     const newColumn = {
       title,
-      color: columnColors[columns.length % columnColors.length],
+      color:
+        columnColors[
+          columns.length % columnColors.length
+        ],
+      position:
+        position === "start"
+          ? 0
+          : Number(position),
+    };
+  
+    try {
+      await addColumn(newColumn)
+      showAlert("Column added successfully!", "success");
+    } catch (error) {
+      console.error("Error adding column:", error);
+      showAlert("Failed to add column.","error");
     }
+  };
 
-    setColumns((prev) => {
-      if(position === "start"){
-        return [newColumn, ...prev];
-      }
-
-      const insertIndex = Number(position)
-      const updated = [...prev]
-      updated.splice(insertIndex, 0 , newColumn);
-      return updated;
-    })
-  }
-
-  const handleDeleteColumn = (title) => {
-    setColumns((prev) => prev.filter((c) => c.title !== title))
-    setTasks((prev) => prev.filter((t) => t.status !== title))
-  }
+  const handleDeleteColumn = async (columnTitle) => {
+    const columnToDelete = columns.find((col) => col.title === columnTitle);
+    if (!columnToDelete) return;
+  
+    try {
+      const batch = writeBatch(db);
+  
+      const colRef = doc(db, "columns", columnToDelete.id);
+      batch.delete(colRef);
+  
+      const tasksToDelete = tasks.filter((t) => t.status === columnTitle);
+      tasksToDelete.forEach((task) => {
+        const taskRef = doc(db, "tasks", task.id);
+        batch.delete(taskRef);
+      });
+  
+      await batch.commit();
+      showAlert("Column deleted!", "success");
+    } catch (error) {
+      console.error("Batch delete failure:", error);
+      showAlert("Failed to delete column.", "error");
+    }
+  };
  
   return (
     <div className="general-page">
@@ -306,10 +369,10 @@ export default function General() {
       </div>
         <KanbanBoard 
           tasks={visibleTasks} 
-          setTasks={setTasks} 
+          onUpdateTask={updateTask} 
           onAddTask={handleOpenModal}
           onEditTask={handleEditTask}
-          columns={columns}
+          columns={sortedColumns}
           onDeleteColumn={handleDeleteColumn}
           searchTerm={searchTerm}
         />
@@ -319,7 +382,7 @@ export default function General() {
               <AddColumnModal
                 onClose={() => setShowColumnModal(false)}
                 onAdd={handleAddColumn}
-                columns={columns}
+                columns={sortedColumns}
               />
             )
           }

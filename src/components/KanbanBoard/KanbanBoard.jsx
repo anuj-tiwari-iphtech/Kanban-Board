@@ -5,7 +5,7 @@ import { DndContext,DragOverlay,closestCorners,PointerSensor,useSensor, useSenso
 import {SortableContext,verticalListSortingStrategy,arrayMove,} from "@dnd-kit/sortable";
 import "./KanbanBoard.css";
 
-export default function KanbanBoard({tasks, setTasks, onAddTask, onEditTask, columns, onDeleteColumn, searchTerm}) {
+export default function KanbanBoard({tasks, onUpdateTask, onAddTask, onEditTask, columns, onDeleteColumn, searchTerm}) {
 
   const [activeTask, setActiveTask] = useState(null);
 
@@ -20,38 +20,46 @@ export default function KanbanBoard({tasks, setTasks, onAddTask, onEditTask, col
     setActiveTask(task)
   }
 
-  const handleDragEnd = (event) => {
-    setActiveTask(null)
+  const handleDragEnd = async (event) => {
+    setActiveTask(null);
+    const { active, over } = event;
+  
+    if (!over) return;
+  
+    const activeTask = tasks.find((task) => task.id === active.id);
+  
+    if (!activeTask) return;
 
-    const {active, over} = event;
-    if(!over) return;
-
-    const activeTask = tasks.find((t) => t.id === active.id);
-    if(!activeTask) return;
-
-    const overColumn = columns.find((c) => c.title === over.id);
-    if(overColumn){
-      setTasks((prev) => 
-      prev.map((t) =>
-        t.id === active.id ? {...t, status : overColumn.title} : t
-      ))
-      return
+    const overColumn = columns.find((column) => column.title === over.id);
+  
+    if (overColumn) {
+      if (activeTask.status === overColumn.title) {
+        return;
+      }
+  
+      try {
+        await onUpdateTask(activeTask.id, {
+          status: overColumn.title,
+        });
+      } catch (error) {
+        console.error("Error moving task:", error);
+      }
+      return;
     }
-
-    const overTask = tasks.find((t) => t.id === over.id);
-    if (overTask && activeTask.id !== overTask.id) {
-      setTasks((prev) => {
-        const updated = prev.map((t) =>
-          t.id === activeTask.id ? { ...t, status: overTask.status } : t
-        );
-
-        const oldIndex = updated.findIndex((t) => t.id === active.id);
-        const newIndex = updated.findIndex((t) => t.id === over.id);
-
-        return arrayMove(updated, oldIndex, newIndex);
-      });
+  
+    const overTask = tasks.find(
+      (task) => task.id === over.id
+    );
+  
+    if ( overTask && activeTask.id !== overTask.id) {
+      try { await onUpdateTask(activeTask.id, {
+          status: overTask.status,
+        });
+      } catch (error) {
+        console.error("Error moving task:",error);
+      }
     }
-  }
+  };
 
   const filteredTasks = tasks.filter((task) => {
     const search = searchTerm?.toLowerCase().trim();
@@ -63,6 +71,7 @@ export default function KanbanBoard({tasks, setTasks, onAddTask, onEditTask, col
       task.description?.toLowerCase().includes(search)
     );
   });
+
 
   return (
     <DndContext

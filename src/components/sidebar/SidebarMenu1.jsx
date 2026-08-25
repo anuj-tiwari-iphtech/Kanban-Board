@@ -3,7 +3,6 @@ import {
   HiHome,
   HiOutlineViewGrid,
   HiOutlineChartBar,
-  HiOutlineChatAlt2,
   HiOutlineCog
 } from "react-icons/hi";
 import { NavLink } from "react-router-dom";
@@ -11,13 +10,11 @@ import { NavLink } from "react-router-dom";
 import "./sidebar.css";
 
 export default function SidebarMenu1({active, setActive}) {
-  // const [active, setActive] = useState("General");
 
   const menuItems = [
     { label: "General", icon: <HiHome />, path:"/" },
     { label: "Board", icon: <HiOutlineViewGrid />, path:"/board"},
     { label: "Report", icon: <HiOutlineChartBar />, path: "/report"},
-    { label: "Inbox", icon: <HiOutlineChatAlt2 />, path:"/indox"},
     { label: "Settings", icon: <HiOutlineCog />, path:"/setting" }
   ];
 

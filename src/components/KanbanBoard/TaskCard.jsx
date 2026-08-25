@@ -16,7 +16,7 @@ export default function TaskCard({task, isOverlay, onEdit}) {
     const {attributes, listeners, setNodeRef, transform, transition, isDragging} = useSortable({id : task.id, disabled: isOverlay})
 
     const style = {
-        transfrom: CSS.Transform.toString(transform),
+        transform: CSS.Transform.toString(transform),
         transition,
         opacity: isDragging ? 0.5 : 1,
 

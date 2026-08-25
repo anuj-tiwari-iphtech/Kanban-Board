@@ -1,8 +1,8 @@
 .setting-page {
     padding: 24px;
-    max-width: 900px;
+    /* max-width: 900px; */
 }
-  
+
 .setting-page .main-heading {
     margin: 0 0 24px 0;
     font-family: "DM Sans", sans-serif;
@@ -11,15 +11,9 @@
     color: #171a1f;
 }
 
-/* .profile-card-center{
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    
-} */
-
 .profile-card {
     max-width: 480px;
+    margin: 0 auto;
     background: #ffffff;
     border: 1px solid #eceef1;
     border-radius: 10px;

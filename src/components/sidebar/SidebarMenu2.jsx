@@ -1,14 +1,14 @@
 import { HiOutlineCheckCircle, HiOutlineBookmark } from "react-icons/hi";
 import { BsStopwatch } from "react-icons/bs";
-import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import './sidebar.css'
 
 export default function SidebarMenu2({active, setActive}) {
-    // const[active, setActive] = useState()
+  const navigate = useNavigate()
     const items = [
-        {label: "Published", icon: <HiOutlineCheckCircle/>},
-        {label: "Today's Scheduled", icon: <BsStopwatch/>},
-        {label: "Bookmark", icon: <HiOutlineBookmark/>}
+        {label: "Published", icon: <HiOutlineCheckCircle/> , path :"/published"},
+        {label: "Today's Scheduled", icon: <BsStopwatch/> , path : "/today-scheduleds"},
+        {label: "Bookmark", icon: <HiOutlineBookmark/>, path : "/bookmark"}
     ]
   return (
     <>
@@ -19,7 +19,7 @@ export default function SidebarMenu2({active, setActive}) {
           className={`menu-item indent ${
             active === item.label ? "selected" : ""
           }`}
-          onClick={() => setActive(item.label)}
+          onClick={() => {setActive(item.label); navigate(item.path)}}
         >
           <span className="icon">{item.icon}</span>
           <span className="menu-label">{item.label}</span>

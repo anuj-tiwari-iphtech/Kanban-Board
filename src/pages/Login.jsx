@@ -3,8 +3,13 @@ import { FcGoogle } from "react-icons/fc";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { z } from "zod";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { doc, getDoc } from "firebase/firestore";
+import { auth, db } from "../Firebase/firebase";
+import { useAlert } from "../components/AlertModal/AlertContext";
 import useLocalStorage from "../customHooks/useLocalStorage";
 import "./Login.css";
+import { useAuthContext } from "../auth/AuthContext";
 
 const loginSchema = z.object({
   email: z
@@ -17,25 +22,29 @@ const loginSchema = z.object({
     .min(6, "Password must be at least 6 characters"),
 });
 
-export default function Login({currentUser, setCurrentUser}) {
-  const [users] = useLocalStorage("kanban-users", []);
-  // const [currentUser, setCurrentUser] = useLocalStorage("kanban-current-user", null);
+export default function Login() {
+  // const [users] = useLocalStorage("kanban-users", []);
+
+  const {currentUser} = useAuthContext();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fieldErrors, setFieldErrors] = useState({});
   const [error, setError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const navigate = useNavigate();
+  const {showAlert} = useAlert()
 
-  const handleSubmit = (e) => {
-    if(currentUser){
-      alert("User already Exists")
-      return;
-    }
+  const handleSubmit = async(e) => {
     e.preventDefault();
     setError("");
     setFieldErrors({});
+    
+    if(currentUser){
+      showAlert("You are already logged in." , "info")
+      return;
+    }
 
     const result = loginSchema.safeParse({ email, password });
 
@@ -51,17 +60,60 @@ export default function Login({currentUser, setCurrentUser}) {
 
     const { email: validEmail, password: validPassword } = result.data;
 
-    const matchedUser = users.find(
-      (u) => u.email === validEmail && u.password === validPassword
-    );
+    setIsSubmitting(true);
 
-    if (!matchedUser) {
-      setError("Invalid email & password");
-      return;
+    try {
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        validEmail,
+        validPassword
+      );
+
+      const firebaseUser = userCredential.user;
+      const userDocRef = doc(db, "users", firebaseUser.uid);
+      const userDoc = await getDoc(userDocRef);
+
+      if (!userDoc.exists()) {
+        setError("User profile not found.");
+        return;
+      }
+
+      const userData = userDoc.data();
+
+      const loggedInUser = {uid: firebaseUser.uid,...userData,};
+
+      showAlert("Login successful!", "success");
+      navigate("/");
+
+    } catch (err) {
+      console.error("Login error:", err);
+
+      switch (err.code) {
+        case "auth/invalid-credential":
+          setError("Invalid email or password.");
+          break;
+        case "auth/user-not-found":
+          setError("No account found with this email.");
+          break;
+        case "auth/wrong-password":
+          setError("Incorrect password.");
+          break;
+        case "auth/invalid-email":
+          setError("Invalid email address.");
+          break;
+        case "auth/user-disabled":
+          setError("This account has been disabled.");
+          break;
+        case "auth/too-many-requests":
+          setError(
+            "Too many failed attempts. Please try again later.");
+          break;
+        default:
+          setError("Something went wrong. Please try again.");
+      }
+    } finally {
+      setIsSubmitting(false);
     }
-
-    setCurrentUser(matchedUser);
-    navigate("/");
   };
 
   return (

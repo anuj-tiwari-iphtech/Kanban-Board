@@ -5,6 +5,7 @@ import { useAlert } from "../components/AlertModal/AlertContext"
 import CreateSprintModal from "../Sprints/CreateSprintModal"
 import AddTaskToSprintModal from "../Sprints/AddTaskToSprintModal"
 import TaskModal from "../components/AddTaskModal/Modal"
+import TaskTable from "../components/TaskTable/TaskTable"
 import './board.css'
 
 export default function Board({currentUser}) {
@@ -145,29 +146,12 @@ export default function Board({currentUser}) {
         )}
 
         <div className="sprint-task-list">
-          {(activeTab === "backlog" ? backlogTasks : activeSprintTasks).length === 0 ? (
-            <p className="sprint-empty-text">
-              {activeTab === "backlog" ? "No tasks in backlog." : "No tasks in this sprint yet."}
-            </p>
-          ):(
-            (activeTab === "backlog" ? backlogTasks : activeSprintTasks).map((task) => (
-              <div key={task.id} className="sprint-task-row">
-                <span className="sprint-task-name clickable" onClick={() => handleTaskClick(task)}>{task.name}</span>
-                <span className={`sprint-task-status status-${task.status?.replace(/\s+/g, "-").toLowerCase()}`}>{task.status}</span>
-                <span className="sprint-task-priority">{task.priority}</span>
-                {task.assignee && (
-                  <img src={task.assignee.avatar} alt={task.assignee.name} className="sprint-task-avatar"/>
-                )}
-                {activeTab !== "backlog" && (
-                  <button className="sprint-remove-btn"
-                    onClick={() => handleRemoveTaskFromSprint(task.id)}
-                  >
-                    Remove
-                  </button>
-                )}
-              </div>
-            ))
-          )}
+          <TaskTable 
+            tasks={activeTab === "backlog" ? backlogTasks : activeSprintTasks}
+            onEditTask={handleTaskClick}
+            showRemove={activeTab !== "backlog"}          
+            onRemove={handleRemoveTaskFromSprint}          
+          />
         </div>
 
         
