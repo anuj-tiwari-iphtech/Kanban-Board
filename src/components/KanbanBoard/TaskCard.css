@@ -4,10 +4,14 @@
   border-radius: 6px;
   padding: 12px;
   margin-bottom: 12px;
-  cursor: pointer;
+  cursor: grab;              /* CHANGED — pointer se grab, zyada intuitive */
   transition: box-shadow 0.2s ease;
+  touch-action: none;         /* NEW — @dnd-kit ke liye recommended, touch devices pe drag sahi kaam kare */
 }
 
+.task-card.dragging {
+  cursor: grabbing;
+}
 .task-card:hover {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }

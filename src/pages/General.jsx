@@ -10,16 +10,11 @@ import KanbanBoard from "../components/KanbanBoard/KanbanBoard";
 import TaskModal from "../components/AddTaskModal/Modal";
 import useClickOutside from "../customHooks/useClickOutside";
 import AddColumnModal from "../components/KanbanBoard/AddColumnModal";
+import useAllUsers from "../auth/users";
 import "./general.css";
 
-const defaultColumns = [
-  { title: "TO DO", color: "blue" },
-  { title: "IN PROGRESS", color: "yellow" },
-  { title: "REVIEW", color: "blue" },
-  { title: "DONE", color: "green" },
-];
-
 export default function General() {
+  const users = useAllUsers()
   const {currentUser} = useAuthContext()
   const {searchTerm} = useOutletContext()
 
@@ -29,7 +24,8 @@ export default function General() {
     add : addTask,
     update : updateTask,
     remove : deleteTask,
-  } = useFirestoreCollection("tasks",currentUser?.id)
+    batchUpdate,
+  } = useFirestoreCollection("tasks",currentUser?.id, true)
   
   const {
     data:columns,
@@ -37,7 +33,7 @@ export default function General() {
     add: addColumn,
     update: updateColumn,
     remove: deleteColumn,
-  } = useFirestoreCollection("columns", currentUser?.id)
+  } = useFirestoreCollection("columns", currentUser?.id, true)
 
   const [activeAction, setActiveAction] = useState();
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -62,30 +58,7 @@ export default function General() {
 
   const columnColors = ["blue", "yellow", "green", "purple", "red"];
 
-  useEffect(() => {
-    if (!currentUser?.id || columnLoading || (columns && columns.length > 0)) return;
-  
-    const seedDefaultColumns = async () => {
-      try {
-        const batch = writeBatch(db);
-  
-        defaultColumns.forEach((col) => {
-          const colRef = doc(collection(db, "columns"));
-          batch.set(colRef, {
-            ...col,
-            userId: currentUser.id,
-          });
-        });
-  
-        await batch.commit();
-      } catch (error) {
-        console.error("Error seeding default columns:", error);
-      }
-    };
-    seedDefaultColumns();
-  }, [currentUser?.id, columnLoading, columns]);
-
-  const activeColumns = columns && columns.length > 0 ? columns : defaultColumns;
+  const activeColumns = columns || [];
 
     const sortedColumns = [...activeColumns].sort(
       (a, b) => (a.position ?? 0) - (b.position ?? 0)
@@ -187,35 +160,48 @@ export default function General() {
 
   const handleAddColumn = async (title, position) => {
     const alreadyExists = columns.some(
-      (column) => column.title === title
+      (column) => column.title.toLowerCase() === title.toLowerCase().trim()
     );
   
     if (alreadyExists) {
-      showAlert(
-        "A column with this name already exists.",
-        "error"
-      );
+      showAlert("A column with this name already exists.", "error");
       return;
     }
   
-    const newColumn = {
-      title,
-      color:
-        columnColors[
-          columns.length % columnColors.length
-        ],
-      position:
-        position === "start"
-          ? 0
-          : Number(position),
-    };
+    let insertPosition;
+    if (position === "start") {
+      insertPosition = 0;
+    } else if (position === "end" || position === undefined || position === null) {
+      insertPosition = columns.length; 
+    } else {
+      insertPosition = Number(position);
+    }
   
     try {
-      await addColumn(newColumn)
+      if (insertPosition < columns.length) {
+        const updates = columns
+          .filter((column) => (column.position ?? 0) >= insertPosition)
+          .map((column) =>
+            updateColumn(column.id, {
+              position: (column.position ?? 0) + 1,
+            })
+          );
+  
+        await Promise.all(updates);
+      }
+  
+      const newColumn = {
+        title: title.trim(),
+        color: columnColors[columns.length % columnColors.length],
+        position: insertPosition,
+        userId: currentUser?.id, 
+      };
+  
+      await addColumn(newColumn);
       showAlert("Column added successfully!", "success");
     } catch (error) {
       console.error("Error adding column:", error);
-      showAlert("Failed to add column.","error");
+      showAlert("Failed to add column.", "error");
     }
   };
 
@@ -370,6 +356,7 @@ export default function General() {
         <KanbanBoard 
           tasks={visibleTasks} 
           onUpdateTask={updateTask} 
+          onBatchUpdate={batchUpdate}
           onAddTask={handleOpenModal}
           onEditTask={handleEditTask}
           columns={sortedColumns}

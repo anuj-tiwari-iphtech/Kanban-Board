@@ -1,15 +1,17 @@
 import { useState } from "react";
 import { HiOutlinePencil, HiOutlineCheck, HiOutlineX, HiOutlineLockClosed } from "react-icons/hi";
-import useLocalStorage from "../../customHooks/useLocalStorage";
 import { useAlert } from "../AlertModal/AlertContext";
+import { doc, updateDoc } from "firebase/firestore";
+import { updatePassword, reauthenticateWithCredential, EmailAuthProvider } from "firebase/auth";
+import { db, auth } from "../../Firebase/firebase";
 import "./ProfileCard.css";
 
 const avatarOptions = [
   "warrior", "felix", "aneka", "midnight", "shadow", "luna",
 ];
 
-export default function ProfileCard({ currentUser, setCurrentUser }) {
-  const [users, setUsers] = useLocalStorage("kanban-users", []);
+export default function ProfileCard({ currentUser, setCurrentUser}) {
+
   const { showAlert } = useAlert();
 
   const [isEditing, setIsEditing] = useState(false);
@@ -29,18 +31,31 @@ export default function ProfileCard({ currentUser, setCurrentUser }) {
     );
   }
 
-  const handleSaveProfile = () => {
+  const handleSaveProfile = async () => {
     if (!name.trim()) {
       showAlert("Name cannot be empty.", "warning");
       return;
     }
 
-    const updatedUser = { ...currentUser, name: name.trim(), avatar: selectedAvatar };
+    try{
+      const updates = {name : name.trim()}
 
-    setUsers((prev) => prev.map((u) => (u.id === currentUser.id ? updatedUser : u)));
-    setCurrentUser(updatedUser);
-    setIsEditing(false);
-    showAlert("Profile updated successfully!", "success");
+      if(selectedAvatar){
+        updates.avatar = selectedAvatar;
+      }
+
+      const updatedUser = { ...currentUser, ...updates };
+
+      await updateDoc(doc(db, "users", currentUser.id), updates)
+
+      setCurrentUser(updatedUser);
+      setIsEditing(false);
+      showAlert("Profile updated successfully!", "success")
+    }catch(error){
+      showAlert("Failed to update profile.", "error");
+      console.error(error);
+    }
+      
   };
 
   const handleCancelEdit = () => {
@@ -49,13 +64,15 @@ export default function ProfileCard({ currentUser, setCurrentUser }) {
     setIsEditing(false);
   };
 
-  const handleChangePassword = () => {
-    if (currentPassword !== currentUser.password) {
-      showAlert("Current password is incorrect.", "error");
+  const handleChangePassword = async () => {
+
+    if (!currentPassword.trim()) {   
+      showAlert("Please enter your current password.", "warning");
       return;
     }
-    if (!newPassword || newPassword.length < 4) {
-      showAlert("New password must be at least 4 characters.", "warning");
+    
+    if (!newPassword || newPassword.length < 6) {
+      showAlert("New password must be at least 6 characters.", "warning");
       return;
     }
     if (newPassword !== confirmPassword) {
@@ -63,15 +80,25 @@ export default function ProfileCard({ currentUser, setCurrentUser }) {
       return;
     }
 
-    const updatedUser = { ...currentUser, password: newPassword };
-    setUsers((prev) => prev.map((u) => (u.id === currentUser.id ? updatedUser : u)));
-    setCurrentUser(updatedUser);
+    try{
+      const credentail = EmailAuthProvider.credential(currentUser.email, currentPassword);
+      await reauthenticateWithCredential(auth.currentUser, credentail);
+      await updatePassword(auth.currentUser, newPassword);
 
-    setCurrentPassword("");
-    setNewPassword("");
-    setConfirmPassword("");
-    setIsChangingPassword(false);
-    showAlert("Password changed successfully!", "success");
+      setCurrentPassword("");
+      setNewPassword("");
+      setConfirmPassword("");
+      setIsChangingPassword(false);
+      showAlert("Password changed successfully!", "success");
+    }catch(error){
+      if(error.code === "auth/wrong-password" || error.code === "auth/invalid-credential"){
+        showAlert("Current password is incorrect.", "error");
+      }else{
+        showAlert("Failed to change Password","error");
+      }
+      console.error(error);
+    }
+    
   };
 
   return (

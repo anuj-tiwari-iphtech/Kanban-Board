@@ -1,18 +1,42 @@
 import { useState } from "react"
 import { HiPlus, HiOutlineCalendar, HiOutlineTrash } from "react-icons/hi"
-import useLocalStorage from "../customHooks/useLocalStorage"
 import { useAlert } from "../components/AlertModal/AlertContext"
 import CreateSprintModal from "../Sprints/CreateSprintModal"
 import AddTaskToSprintModal from "../Sprints/AddTaskToSprintModal"
 import TaskModal from "../components/AddTaskModal/Modal"
 import TaskTable from "../components/TaskTable/TaskTable"
+import { useAuthContext } from "../auth/AuthContext"
+import useFirestoreCollection from "../Firebase/useFirestoreCollection"
 import './board.css'
 
-export default function Board({currentUser}) {
+export default function Board() {
 
-  const [sprints, setSprints] = useLocalStorage("kanban-sprints", []);
-  const [tasks] = useLocalStorage("Kanban-tasks", [])
-  const [columns] = useLocalStorage("kanban-columns", []);
+  const {currentUser} = useAuthContext();
+
+  const {
+    data: tasks,
+    loading: taskLoading,
+    add : addTask,
+    update : updateTask,
+    remove : deleteTask,
+  } = useFirestoreCollection("tasks",currentUser?.id)
+  
+  const {
+    data:columns,
+    loading: columnLoading,
+    add: addColumn,
+    update: updateColumn,
+    remove: deleteColumn,
+  } = useFirestoreCollection("columns", currentUser?.id)
+
+  const {
+    data : sprints,
+    loading : sprintsLoading,
+    add : addSprint,
+    update : updateSprint,
+    remove : deleteSprint,
+  } = useFirestoreCollection("sprints", currentUser?.id)
+
   const [activeTab , setActiveTab] = useState("backlog")
   const [showCreateSprint, setShowCreateSprint] = useState(false)
   const [showAddTaskModal, setShowAddTaskModal] = useState(false)
@@ -34,18 +58,16 @@ export default function Board({currentUser}) {
   const activeSprint = sprints.find((s) => s.id === activeTab);
   const activeSprintTasks = activeSprint ? tasks.filter((t) => activeSprint.taskIds?.includes(t.id)) : [];
 
-  const handleCreateSprint = (name, startDate, endDate) => {
-    const newSprint = {
-      id : `sprint_${Date.now()}`,
-      name,
-      startDate,
-      endDate,
-      taskIds: [],
+  const handleCreateSprint = async (name, startDate, endDate) => {
+    try{
+      const docRef = await addSprint({ name, startDate, endDate, taskIds:[]});
+      setActiveTab(docRef.id);
+      setShowCreateSprint(false);
+      showAlert(`${name} created successfully`, "success");
+    }catch(error){
+      showAlert( "Failes to create sprint","error")
+      console.error(error);
     }
-    setSprints((prev) => [...prev, newSprint])
-    setActiveTab(newSprint.id);
-    setShowCreateSprint(false);
-    showAlert(`${name} create Successfully`, "success")
   }
 
   const formatDate = (date) => {
@@ -59,39 +81,54 @@ export default function Board({currentUser}) {
   };
 
   const handleTaskClick = (task) => {
+    console.log("Task Clicked", task);
     setEditingTask(task);
     setIsTaskModalOpen(true);
   }
 
-  const handleSaveTask = (updatedTask) => {
-    setTasks((prev) => 
-    prev.map((t) => (t.id === updatedTask.id ? updatedTask : t))
-    )
-    setIsTaskModalOpen(false)
-    setEditingTask(null)
+  const handleSaveTask = async(updatedTask) => {
+      try {
+        await updateTask(editingTask.id, updatedTask);
+        showAlert("Updated successfully")
+      } catch (error) {
+        console.error(" Update FAILED:", error);
+      }
+      setIsTaskModalOpen(false);
+      setEditingTask(null);
   }
 
-  const handleDeleteSprint = (sprintId) => {
-    setSprints((prev) => prev.filter((s) => s.id !== sprintId))
-    setActiveTab("backlog");
-    showAlert("Sprint deleted. Tasks moved back to backlog.", "warning")
+  const handleDeleteSprint = async (sprintId) => {
+    try{
+      await deleteSprint(sprintId);
+      setActiveTab("backlog")
+      showAlert("Spring deleted. Task moved back to backlog.", "warning");
+    }catch(error){
+      showAlert("Failed to delete sprint", "error");
+      console.error(error);
+    }
   }
 
-  const handleAddTasksToSprint = (taskIds) => {
-    setSprints((prev) => 
-      prev.map((s) => 
-        s.id === activeTab ? {...s, taskIds : [...s.taskIds || [], ...taskIds]} : s
-      )
-    )
-    setShowAddTaskModal(false)
+  const handleAddTasksToSprint = async (taskIds) => {
+    try{
+      const currentSprint = sprints.find((s) => s.id === activeTab);
+      const updatedTaskIds = [...(currentSprint.taskIds || []), ...taskIds];
+      await updateSprint(activeTab, {taskIds: updatedTaskIds});
+      setShowAddTaskModal(false);
+    }catch(error){
+      showAlert("Failed to add tasks", "error");
+      console.error(error);
+    }
   }
 
-  const handleRemoveTaskFromSprint =(taskId) => {
-    setSprints((prev) => 
-      prev.map((s) => 
-        s.id === activeTab ? {...s, taskIds : s.taskIds.filter((id) => id !== taskId)} : s
-      )
-    )
+  const handleRemoveTaskFromSprint = async (taskId) => {
+    try{
+      const currentSprint = sprints.find((d) => d.id === activeTab);
+      const updateTaskIds = currentSprint.taskIds.filter((id) => id !== taskId)
+      await updateSprint(activeTab, {taskIds : updateTaskIds});
+    }catch(error){
+      showAlert("Failed to remove Task", "error");
+      console.log(error);
+    }
   }
   return (
     <>
