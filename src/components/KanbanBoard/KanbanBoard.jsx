@@ -1,88 +1,145 @@
 import { useState } from "react";
 import TaskCard from "./TaskCard";
 import DroppableColumn from "./DroppableColumn";
-import { DndContext,DragOverlay,closestCorners,PointerSensor,useSensor, useSensors } from "@dnd-kit/core";
-import {SortableContext,verticalListSortingStrategy,arrayMove,} from "@dnd-kit/sortable";
+import { DndContext, DragOverlay, PointerSensor, useSensor, useSensors, closestCenter, MeasuringStrategy } from "@dnd-kit/core";
+import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import "./KanbanBoard.css";
 
-export default function KanbanBoard({tasks, onUpdateTask, onAddTask, onEditTask, columns, onDeleteColumn, searchTerm}) {
-
+export default function KanbanBoard({ tasks, onUpdateTask, onBatchUpdate, onAddTask, onEditTask, columns, onDeleteColumn, searchTerm }) {
   const [activeTask, setActiveTask] = useState(null);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
-      activationConstraint : {distance: 5},
+      activationConstraint: { distance: 5 },
     })
-  )
+  );
 
-  const handleDragStart = (event) =>{
-    const task = tasks.find((t) => t.id === event.active.id)
-    setActiveTask(task)
-  }
+  const handleDragStart = (event) => {
+    const task = tasks.find((t) => t.id === event.active.id);
+    setActiveTask(task);
+  };
 
   const handleDragEnd = async (event) => {
     setActiveTask(null);
+  
     const { active, over } = event;
   
-    if (!over) return;
+    if (!over || active.id === over.id) return;
   
     const activeTask = tasks.find((task) => task.id === active.id);
-  
     if (!activeTask) return;
-
+  
+    // 1. Moving to an empty column space
     const overColumn = columns.find((column) => column.title === over.id);
   
     if (overColumn) {
-      if (activeTask.status === overColumn.title) {
-        return;
-      }
+      if (activeTask.status === overColumn.title) return;
+  
+      const targetTasks = tasks
+        .filter(
+          (task) =>
+            task.status === overColumn.title &&
+            task.id !== activeTask.id
+        )
+        .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+  
+      const updates = [
+        {
+          id: activeTask.id,
+          data: {
+            status: overColumn.title,
+            order: targetTasks.length,
+          },
+        },
+        ...targetTasks.map((task, index) => ({
+          id: task.id,
+          data: {
+            order: index,
+          },
+        })),
+      ];
   
       try {
-        await onUpdateTask(activeTask.id, {
-          status: overColumn.title,
-        });
+        await onBatchUpdate(updates);
       } catch (error) {
         console.error("Error moving task:", error);
       }
+  
       return;
     }
   
-    const overTask = tasks.find(
-      (task) => task.id === over.id
+    // 2. Moving over another task
+    const overTask = tasks.find((task) => task.id === over.id);
+    if (!overTask) return;
+  
+    const isSameColumn = activeTask.status === overTask.status;
+  
+    // Get current list for target column without activeTask
+    const targetTasks = tasks
+      .filter(
+        (task) =>
+          task.status === overTask.status &&
+          task.id !== activeTask.id
+      )
+      .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+  
+    let overIndex = targetTasks.findIndex(
+      (task) => task.id === overTask.id
     );
   
-    if ( overTask && activeTask.id !== overTask.id) {
-      try { await onUpdateTask(activeTask.id, {
-          status: overTask.status,
-        });
-      } catch (error) {
-        console.error("Error moving task:",error);
-      }
+    if (overIndex === -1) return;
+  
+    // FIX: If dragging downwards in the same column, shift insertion index by +1
+    if (isSameColumn && activeTask.order < overTask.order) {
+      overIndex += 1;
+    }
+  
+    targetTasks.splice(overIndex, 0, {
+      ...activeTask,
+      status: overTask.status,
+    });
+  
+    const updates = targetTasks.map((task, index) => ({
+      id: task.id,
+      data: {
+        status: overTask.status,
+        order: index,
+      },
+    }));
+  
+    try {
+      await onBatchUpdate(updates);
+    } catch (error) {
+      console.error("Error moving task:", error);
     }
   };
 
   const filteredTasks = tasks.filter((task) => {
     const search = searchTerm?.toLowerCase().trim();
-  
     if (!search) return true;
-  
     return (
       task.name?.toLowerCase().includes(search) ||
       task.description?.toLowerCase().includes(search)
     );
   });
 
-
   return (
     <DndContext
       sensors={sensors}
-      collisionDetection={closestCorners}
+      collisionDetection={closestCenter}
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
+      measuring={{
+        droppable: {
+          strategy: MeasuringStrategy.Always,
+        },
+      }}
     >
       <div className="kanban-board">
         {columns.map((column) => {
-          const columnTasks = filteredTasks.filter((t) => t.status === column.title);
+          const columnTasks = filteredTasks
+            .filter((t) => t.status === column.title)
+            .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
 
           return (
             <DroppableColumn
@@ -97,16 +154,16 @@ export default function KanbanBoard({tasks, onUpdateTask, onAddTask, onEditTask,
                 strategy={verticalListSortingStrategy}
               >
                 {columnTasks.map((task) => (
-                  <TaskCard key={task.id} task={task} onEdit = {() => onEditTask(task)} />
+                  <TaskCard key={task.id} task={task} onEdit={() => onEditTask(task)} />
                 ))}
               </SortableContext>
             </DroppableColumn>
           );
         })}
       </div>
-        <DragOverlay>
-          {activeTask ? <TaskCard task={activeTask} isOverlay/> : null}
-        </DragOverlay>
+      <DragOverlay dropAnimation={null}>
+        {activeTask ? <TaskCard task={activeTask} isOverlay /> : null}
+      </DragOverlay>
     </DndContext>
   );
 }

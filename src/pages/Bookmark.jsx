@@ -1,10 +1,13 @@
-import useLocalStorage from "../customHooks/useLocalStorage"
 import TaskTable from "../components/TaskTable/TaskTable"
 import "./scheduledPages.css"
+import { useAuthContext } from "../auth/AuthContext"
+import useFirestoreCollection from "../Firebase/useFirestoreCollection"
 
 export default function Bookmark() {
-    const [tasks] = useLocalStorage("Kanban-tasks",[])
-    const bookmarkedTasks = tasks.filter((t) => t.isBookmarked)
+  const {currentUser} = useAuthContext()
+  const {data: tasks} = useFirestoreCollection("tasks",currentUser?.id)
+    
+  const bookmarkedTasks = tasks.filter((t) => t.isBookmarked)
    return (
     <div className="scheduled-page">
         <h1 className="main-heading">Bookmarked</h1>

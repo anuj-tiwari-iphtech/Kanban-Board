@@ -7,16 +7,17 @@ import {
   deleteDoc, 
   doc, 
   query, 
-  where 
+  where, 
+  writeBatch
 } from "firebase/firestore";
 import { db } from "./firebase";
 
-export default function useFirestoreCollection(collectionName, userId) {
+export default function useFirestoreCollection(collectionName, userId, isShared = true) {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!userId) {
+    if ( !isShared && !userId) {
       setData([]);
       setLoading(false);
       return;
@@ -24,14 +25,11 @@ export default function useFirestoreCollection(collectionName, userId) {
 
     setLoading(true);
 
-    const q = query(
-      collection(db, collectionName),
-      where("userId", "==", userId)
-    );
+    const q = isShared 
+        ? query(collection(db, collectionName))
+        : query(collection(db, collectionName), where("userId","==", userId))
 
-    const unsubscribe = onSnapshot(
-      q,
-      (snapshot) => {
+    const unsubscribe = onSnapshot(q,(snapshot) => {
         const items = snapshot.docs.map((docItem) => ({
           id: docItem.id,
           ...docItem.data(),
@@ -64,9 +62,7 @@ export default function useFirestoreCollection(collectionName, userId) {
   };
 
   const update = async (id, updates) => {
-    if (!userId) {
-      throw new Error("User is not authenticated");
-    }
+    if (!userId) throw new Error("User is not authenticated");
 
     const docRef = doc(db, collectionName, id);
     return await updateDoc(docRef, {
@@ -79,10 +75,17 @@ export default function useFirestoreCollection(collectionName, userId) {
     if (!userId) {
       throw new Error("User is not authenticated");
     }
-
     const docRef = doc(db, collectionName, id);
     return await deleteDoc(docRef);
   };
 
-  return { data, loading, add, update, remove };
+  const batchUpdate = async (updates) => {
+    const batch = writeBatch(db);
+    updates.forEach(({id, data}) => {
+      batch.update(doc(db, collectionName, id), data);
+    })
+    await batch.commit();
+  }
+
+  return { data, loading, add, update, remove , batchUpdate};
 }

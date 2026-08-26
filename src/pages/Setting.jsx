@@ -1,11 +1,12 @@
 import ProfileCard from "../components/Profile/ProfileCard"
+import { useAuthContext } from "../auth/AuthContext"
 
-
-export default function Setting({currentUser, setCurrentUser}) {
+export default function Setting() {
+  const {currentUser, setCurrentUser} = useAuthContext()
   return (
     <div className="setting-page">
       <h1 className="main-heading">Settings</h1>
-      <ProfileCard currentUser={currentUser} setCurrentUser={setCurrentUser} />
+      <ProfileCard currentUser={currentUser} setCurrentUser={setCurrentUser}/>
 
       <p className="contact-heading">For Any Queries</p>
       <div className="contact-details">

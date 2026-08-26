@@ -9,7 +9,7 @@ import { priorityConfig } from "../KanbanBoard/TaskCard";
 import img from "../../assets/avatar2.png";
 import './Modal.css';
 import { useAuthContext } from "../../auth/AuthContext";
-import useFirestoreCollection from "../../Firebase/useFirestoreCollection";
+import useAllUsers from "../../auth/users";
 
 const availableLabels = [
     { name: "Design", color: "#8b5cf6", bg: "#f3e8ff" },
@@ -31,9 +31,8 @@ const colorHexMap = {
 
 export default function TaskModal({ onClose, onSave, defaultStatus, editingTask, columns }) {
     const { currentUser } = useAuthContext();
-    
-    // Fetch users from Firebase
-    const { data: users } = useFirestoreCollection("users", currentUser?.id);
+
+    const users = useAllUsers();
 
     // Status options from columns
     const statusOptions = columns?.map((column) => column.title) || [];
@@ -106,7 +105,6 @@ export default function TaskModal({ onClose, onSave, defaultStatus, editingTask,
         setValidationError("");
 
         const newTask = {
-            id: editingTask?.id || Date.now(),
             name: taskName || "Untitled",
             status,
             priority,
@@ -116,11 +114,11 @@ export default function TaskModal({ onClose, onSave, defaultStatus, editingTask,
             commentsCount: comments.length,
             description,
             comments,
-            assignee: assignee || null, // Store assignee object or null
+            assignee: assignee || null, 
             isScheduled,
             isBookmarked,
             attachments: attachedFiles,
-            // Add Firebase timestamps
+           
             updatedAt: new Date().toISOString(),
             ...(editingTask ? {} : { createdAt: new Date().toISOString() }),
         };
@@ -129,7 +127,6 @@ export default function TaskModal({ onClose, onSave, defaultStatus, editingTask,
         onSave(newTask);
     };
 
-    // Handle add comment
     const handleAddComment = () => {
         if (commentInput.trim() === "") return;
 
@@ -150,7 +147,7 @@ export default function TaskModal({ onClose, onSave, defaultStatus, editingTask,
         setCommentInput("");
     };
 
-    // Extra properties
+    // Extra Properties
     const allExtraProperties = [
         { key: "assignee", label: "Assignee" },
         { key: "scheduled", label: "Today's Scheduled" },
@@ -162,7 +159,6 @@ export default function TaskModal({ onClose, onSave, defaultStatus, editingTask,
         setShowAddPropertyMenu(false);
     };
 
-    // Handle like toggle
     const handleLikeToggle = (commentId) => {
         setComments((prev) =>
             prev.map((c) =>
@@ -173,7 +169,6 @@ export default function TaskModal({ onClose, onSave, defaultStatus, editingTask,
         );
     };
 
-    // Date helpers
     const today = new Date();
     const todayString = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
 
@@ -186,7 +181,6 @@ export default function TaskModal({ onClose, onSave, defaultStatus, editingTask,
                 onClick={(e) => e.stopPropagation()}
             >
                 <div className={`task-wrap ${isExpanded ? "expanded" : ""}`}>
-                    {/* Modal Header */}
                     <div className="modal-icon-row">
                         {isExpanded ? (
                             <>
@@ -213,7 +207,6 @@ export default function TaskModal({ onClose, onSave, defaultStatus, editingTask,
 
                     <p className="modal-breadcrumb">General</p>
                     
-                    {/* Task Name */}
                     <input 
                         type="text"
                         className="modal-title-input"
@@ -222,7 +215,6 @@ export default function TaskModal({ onClose, onSave, defaultStatus, editingTask,
                         onChange={(e) => setTaskName(e.target.value)}
                     />
 
-                    {/* Labels */}
                     <div className="modal-property-row" ref={labelMenuRef}>
                         <HiOutlineTag className="property-icon" />
                         <span className="modal-property-label">Label</span>
@@ -267,7 +259,6 @@ export default function TaskModal({ onClose, onSave, defaultStatus, editingTask,
                         )}
                     </div>
 
-                    {/* Due Date */}
                     <div className="modal-property-row" ref={dateRef}>
                         <HiOutlineCalendar className="property-icon" />
                         <span className="modal-property-label">Due Date</span>
@@ -302,7 +293,6 @@ export default function TaskModal({ onClose, onSave, defaultStatus, editingTask,
                         )}
                     </div>
 
-                    {/* Priority */}
                     <div className="modal-property-row" ref={priorityRef}>
                         <HiOutlineStar className="property-icon" />
                         <span className="modal-property-label">Priority</span>
@@ -336,7 +326,6 @@ export default function TaskModal({ onClose, onSave, defaultStatus, editingTask,
                         )}
                     </div>
 
-                    {/* Status */}
                     <div className="modal-property-row" ref={statusRef}>
                         <BsCircle className="property-icon" />
                         <span className="modal-property-label">Status</span>
@@ -370,7 +359,6 @@ export default function TaskModal({ onClose, onSave, defaultStatus, editingTask,
                         )}
                     </div>
 
-                    {/* Assignee */}
                     {visibleProperties.includes("assignee") && (
                         <div className="modal-property-row" ref={assigneeRef}>
                             <HiOutlineUser className="property-icon" />
@@ -410,7 +398,6 @@ export default function TaskModal({ onClose, onSave, defaultStatus, editingTask,
                         </div>
                     )}
 
-                    {/* Scheduled */}
                     {visibleProperties.includes("scheduled") && (
                         <div className="modal-property-row">
                             <HiOutlineClock className="property-icon" />
@@ -430,7 +417,6 @@ export default function TaskModal({ onClose, onSave, defaultStatus, editingTask,
                         </div>
                     )}
 
-                    {/* Bookmark */}
                     {visibleProperties.includes("bookmark") && (
                         <div className="modal-property-row">
                             <HiOutlineBookmark className="property-icon" />
@@ -450,7 +436,6 @@ export default function TaskModal({ onClose, onSave, defaultStatus, editingTask,
                         </div>
                     )}
 
-                    {/* Add More Properties */}
                     <div className="modal-add-more" ref={addPropertyRef}>
                         <button 
                             className="add-more-btn"
@@ -478,13 +463,9 @@ export default function TaskModal({ onClose, onSave, defaultStatus, editingTask,
                         )}
                     </div>
 
-                    {/* Attachments */}
                     <AttachmentSection files={attachedFiles} setFiles={setAttachedFiles} />
-
-                    {/* Description */}
                     <DescriptionSection description={description} setDescriptiion={setDescription} />
 
-                    {/* Comments */}
                     <div className="comment-section">
                         <div className="comment-header">
                             <img
@@ -528,12 +509,10 @@ export default function TaskModal({ onClose, onSave, defaultStatus, editingTask,
                         ))}
                     </div>
 
-                    {/* Validation Error */}
                     {validationError && (
                         <p className="validation-error">{validationError}</p>
                     )}
 
-                    {/* Save Button (only when not expanded) */}
                     {!isExpanded && (
                         <button className="save-btn" onClick={handleSave}>
                             Save
