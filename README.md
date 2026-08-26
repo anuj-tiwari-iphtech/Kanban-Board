@@ -37,20 +37,7 @@ A React-based Kanban task management application for organizing tasks, users, sp
    ```
    npm install
    ```
-
-3. **Configure Environment Variables**
-- Create a .env file in the root directory and add your Firebase configuration details:
-
-    ```
-    VITE_FIREBASE_API_KEY=AIzaSyD5RlLc67u2SM5sIhS2VT9UwmQ_prZUIvE
-    VITE_FIREBASE_AUTH_DOMAIN=kanban-board-32c01.firebaseapp.com
-    VITE_FIREBASE_PROJECT_ID=kanban-board-32c01
-    VITE_FIREBASE_STORAGE_BUCKET=kanban-board-32c01.firebasestorage.app
-    VITE_FIREBASE_MESSAGING_SENDER_ID=360585500375
-    VITE_FIREBASE_APP_ID=1:360585500375:web:e5216dc0350fe6a1b60292
-    ```
-
-4. **Start the Server**
+3. **Start the Server**
    ```
    npm run dev
    ```
