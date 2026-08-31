@@ -1,18 +1,18 @@
 
-   .sidebar-container {
-    height: 100vh;
-    width: 300px;
-    min-width: 300px;
-    padding: 4px 5px;
-    background-color: #F8F9FAFF;
-    display: flex;
-    flex-direction: column;
-    box-sizing: border-box;
-    transition: transform 0.3s ease-in-out;
-  }
+.sidebar-container {
+  /* height: 100vh; */
+  width: 300px;
+  min-width: 300px;
+  padding: 4px 5px;
+  background-color: #F8F9FAFF;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  transition: transform 0.3s ease-in-out;
+}
   
   .sidebar-overlay {
-    display: none; /* Hide overlay on desktop */
+    display: none; 
   }
   
   .sidebar-header {
@@ -124,7 +124,8 @@
       position: fixed;
       top: 0;
       left: 0;
-      z-index: 1000; /* Higher than overlay to stay on top */
+      z-index: 1000; 
+      height: 100vh;
       transform: translateX(-100%);
       box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
     }

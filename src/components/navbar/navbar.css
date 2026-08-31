@@ -125,6 +125,7 @@
 }
 
 .profile-menu-header {
+  overflow-x: clip;
   display: flex;
   align-items: center;
   gap: 10px;

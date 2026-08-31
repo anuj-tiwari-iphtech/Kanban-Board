@@ -9,7 +9,7 @@ export default function useAllUsers(){
         const unsubscribe = onSnapshot(collection(db, "users"),(snapshot) => {
             setUsers(snapshot.docs.map((d) => ({id:d.id, ...d.data()})))
         })
-        return () => unsubscribe
-    })
+        return () => unsubscribe();
+    },[])
     return users;
 }

@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useMemo } from "react"
 import { HiPlus, HiOutlineCalendar, HiOutlineTrash } from "react-icons/hi"
 import { useAlert } from "../components/AlertModal/AlertContext"
 import CreateSprintModal from "../Sprints/CreateSprintModal"
@@ -15,27 +15,16 @@ export default function Board() {
 
   const {
     data: tasks,
-    loading: taskLoading,
-    add : addTask,
     update : updateTask,
-    remove : deleteTask,
-  } = useFirestoreCollection("tasks",currentUser?.id)
+  } = useFirestoreCollection("tasks",currentUser?.id, true)
   
-  const {
-    data:columns,
-    loading: columnLoading,
-    add: addColumn,
-    update: updateColumn,
-    remove: deleteColumn,
-  } = useFirestoreCollection("columns", currentUser?.id)
+  const {data:columns} = useFirestoreCollection("columns", currentUser?.id, true)
 
   const {
     data : sprints,
-    loading : sprintsLoading,
     add : addSprint,
-    update : updateSprint,
     remove : deleteSprint,
-  } = useFirestoreCollection("sprints", currentUser?.id)
+  } = useFirestoreCollection("sprints", currentUser?.id,true)
 
   const [activeTab , setActiveTab] = useState("backlog")
   const [showCreateSprint, setShowCreateSprint] = useState(false)
@@ -52,15 +41,22 @@ export default function Board() {
     );
   }
 
-  const assignTaskIds = sprints.flatMap((s) => s.taskIds)
-  const backlogTasks = tasks.filter((t) => !assignTaskIds.includes(t.id))
+  const backlogTasks = useMemo(() => {
+    return tasks.filter((t) => !t.sprintId);
+  },[tasks])
 
-  const activeSprint = sprints.find((s) => s.id === activeTab);
-  const activeSprintTasks = activeSprint ? tasks.filter((t) => activeSprint.taskIds?.includes(t.id)) : [];
-
+  const activeSprint = useMemo(() => {
+    return sprints.find((s) => s.id === activeTab);
+  },[sprints, activeTab])
+  
+  const activeSprintTasks = useMemo(() => {
+    if (!activeTab || activeTab === "backlog") return [];
+    return tasks.filter((t) => t.sprintId === activeTab)
+  },[tasks, activeTab]) 
+  
   const handleCreateSprint = async (name, startDate, endDate) => {
     try{
-      const docRef = await addSprint({ name, startDate, endDate, taskIds:[]});
+      const docRef = await addSprint({ name, startDate, endDate});
       setActiveTab(docRef.id);
       setShowCreateSprint(false);
       showAlert(`${name} created successfully`, "success");
@@ -99,7 +95,12 @@ export default function Board() {
 
   const handleDeleteSprint = async (sprintId) => {
     try{
-      await deleteSprint(sprintId);
+      const tasksInSprint = tasks.filter((t) => t.sprintId === sprintId);
+
+      await Promise.all(
+        tasksInSprint.map((t) => updateTask(t.id, {sprintId : null}))
+      )
+      await deleteSprint(sprintId)
       setActiveTab("backlog")
       showAlert("Spring deleted. Task moved back to backlog.", "warning");
     }catch(error){
@@ -108,11 +109,11 @@ export default function Board() {
     }
   }
 
-  const handleAddTasksToSprint = async (taskIds) => {
+  const handleAddTasksToSprint = async (taskId) => {
     try{
-      const currentSprint = sprints.find((s) => s.id === activeTab);
-      const updatedTaskIds = [...(currentSprint.taskIds || []), ...taskIds];
-      await updateSprint(activeTab, {taskIds: updatedTaskIds});
+      await Promise.all(
+        taskId.map((taskIds) => updateTask(taskIds, {sprintId : activeTab}))
+      )
       setShowAddTaskModal(false);
     }catch(error){
       showAlert("Failed to add tasks", "error");
@@ -122,9 +123,7 @@ export default function Board() {
 
   const handleRemoveTaskFromSprint = async (taskId) => {
     try{
-      const currentSprint = sprints.find((d) => d.id === activeTab);
-      const updateTaskIds = currentSprint.taskIds.filter((id) => id !== taskId)
-      await updateSprint(activeTab, {taskIds : updateTaskIds});
+      await updateTask(taskId, {sprintId : null});
     }catch(error){
       showAlert("Failed to remove Task", "error");
       console.log(error);

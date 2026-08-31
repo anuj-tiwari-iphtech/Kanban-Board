@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, startTransition } from "react";
 import { 
   collection, 
   onSnapshot, 
@@ -35,8 +35,10 @@ export default function useFirestoreCollection(collectionName, userId, isShared 
           ...docItem.data(),
         }));
 
-        setData(items);
-        setLoading(false);
+        startTransition(() => {
+          setData(items);
+          setLoading(false);
+        })
       },
       (error) => {
         console.error(`Error loading ${collectionName}:`, error);
@@ -44,8 +46,9 @@ export default function useFirestoreCollection(collectionName, userId, isShared 
       }
     );
 
-    return () => unsubscribe();
-  }, [collectionName, userId]);
+    return () => {
+      unsubscribe()};
+  }, [collectionName, userId, isShared]);
 
   const add = async (item) => {
     if (!userId) {

@@ -10,7 +10,7 @@ const statusColorMap = {
 };
 
 export default function TaskTable({ tasks, onEditTask, onRemove, showRemove }) {
-  if (tasks.length === 0) {
+  if (!tasks || tasks.length === 0) {
     return <p className="task-table-empty">No tasks to show.</p>;
   }
 
@@ -29,7 +29,11 @@ export default function TaskTable({ tasks, onEditTask, onRemove, showRemove }) {
         </thead>
         <tbody>
           {tasks.map((task) => {
-            const statusStyle = statusColorMap[task.status] || { bg: "#eceef1", color: "#565e6c" };
+            const normalizedStatus = task.status?.toUpperCase() || "";
+            const statusStyle = statusColorMap[normalizedStatus] || { 
+              bg: "#eceef1", 
+              color: "#565e6c" 
+            };
             const priorityStyle = priorityConfig[task.priority] || {};
 
             return (

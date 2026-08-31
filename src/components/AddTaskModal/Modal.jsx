@@ -23,7 +23,7 @@ const availableLabels = [
 
 const priorityOptions = ["High", "Medium", "Low"];
 
-export default function TaskModal({ onClose, onSave, defaultStatus, editingTask, columns }) {
+export default function TaskModal({ onClose, onSave, defaultStatus, editingTask, columns , sprintId}) {
     const { currentUser } = useAuthContext();
     const {showAlert} = useAlert();
 
@@ -115,7 +115,7 @@ export default function TaskModal({ onClose, onSave, defaultStatus, editingTask,
             isScheduled,
             isBookmarked,
             attachments: attachedFiles,
-           
+            sprintId: sprintId || null,
             updatedAt: new Date().toISOString(),
             ...(editingTask ? {} : { createdAt: new Date().toISOString() }),
         };

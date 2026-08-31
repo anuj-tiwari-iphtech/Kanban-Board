@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import {HiOutlineUser,HiOutlineFilter,HiOutlineSortAscending,HiOutlineDotsHorizontal,HiPlus,} from "react-icons/hi";
 import { useOutletContext } from "react-router-dom";
 import { useAlert } from "../components/AlertModal/AlertContext";
@@ -24,19 +24,15 @@ export default function General() {
 
   const {
     data: tasks,
-    loading: taskLoading,
     add : addTask,
     update : updateTask,
-    remove : deleteTask,
     batchUpdate,
   } = useFirestoreCollection("tasks",currentUser?.id, true)
   
   const {
     data:columns,
-    loading: columnLoading,
     add: addColumn,
     update: updateColumn,
-    remove: deleteColumn,
   } = useFirestoreCollection("columns", currentUser?.id, true)
 
   const [activeAction, setActiveAction] = useState();
@@ -56,16 +52,15 @@ export default function General() {
   useClickOutside(sortRef, ()=> setShowSortMenu(false))
 
   const isMyTicketsActive = activeAction === "my-tickets"
-  const priorityOrder = {High:1, Medium:2, Low:3}
 
   const columnColors = ["blue", "yellow", "green", "purple", "red"];
 
-  const activeColumns = columns || [];
-
-  const sortedColumns = [...activeColumns].sort(
-    (a, b) => (a.position ?? 0) - (b.position ?? 0)
-  );
-
+  const sortedColumns = useMemo(()=>{
+    return [...columns].sort(
+      (a, b) => (a.position ?? 0) - (b.position ?? 0)
+    );
+  },[columns])
+  
   useEffect(() => {
     if(taskId && tasks.length > 0){
       const foundTask = tasks.find((t) => t.id === taskId);
@@ -76,18 +71,33 @@ export default function General() {
     }
   },[taskId, tasks])
 
-  let visibleTasks = tasks.filter((t) => {
-    if(!currentUser){
-      return false;
+  const visibleTasks = useMemo(() => {
+    let filtered = tasks.filter((t) => {
+      if(!currentUser){
+        return false;
+      }
+      if (isMyTicketsActive) {
+        return t.assignee?.id === currentUser?.id;
+      }
+      if (filterUserId) {
+        return t.assignee?.id === filterUserId;
+      }
+      return true; 
+    });
+
+    if (sortOrder) {
+      const priorityOrder = {High:1, Medium:2, Low:3}
+
+      filtered = [...filtered].sort((a,b) => {
+        const aValue = priorityOrder[a.priority] || 99;
+        const bValue = priorityOrder[b.priority] || 99;
+        return sortOrder === "asc" ? aValue - bValue : bValue - aValue;
+      })
     }
-    if (isMyTicketsActive) {
-      return t.assignee?.id === currentUser?.id;
-    }
-    if (filterUserId) {
-      return t.assignee?.id === filterUserId;
-    }
-    return true; 
-  });
+
+    return filtered
+  },[tasks, currentUser,filterUserId, isMyTicketsActive, sortOrder])
+
 
   const handleActionClick = (action) => {
     if(!currentUser){
@@ -113,14 +123,6 @@ export default function General() {
     }
     handleActionClick("more")
     setShowColumnModal(true)
-  }
-
-  if (sortOrder) {
-    visibleTasks = [...visibleTasks].sort((a,b) => {
-      const aValue = priorityOrder[a.priority] || 99;
-      const bValue = priorityOrder[b.priority] || 99;
-      return sortOrder === "asc" ? aValue - bValue : bValue - aValue;
-    })
   }
 
   const handleOpenModal = (status = "TO DO") => {
