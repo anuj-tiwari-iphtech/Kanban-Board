@@ -1,7 +1,8 @@
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
 
 export default function DescriptionSection({ description, setDescriptiion }) {
   const textareaRef = useRef(null);
+  const [isFocused, setIsFocused] = useState();
 
   const adjustHeight = () => {
     const textarea = textareaRef.current;
@@ -24,13 +25,18 @@ export default function DescriptionSection({ description, setDescriptiion }) {
     <div className="description-section">
       <h3 className="section-heading">DESCRIPTION</h3>
 
+      <div className={`description-box ${isFocused ? "active" : ""}`}>
       <textarea
         ref={textareaRef}
         className="description-textarea"
         placeholder="Add a more detailed description"
         value={description}
         onChange={handleChange}
+        onFocus={() => setIsFocused(true)}
+        onBlur={() => setIsFocused(false)}
+        rows={2}
       />
+      </div>
     </div>
   );
 }

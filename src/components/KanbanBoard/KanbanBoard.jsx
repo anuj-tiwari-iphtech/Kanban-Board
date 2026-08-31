@@ -5,7 +5,7 @@ import { DndContext, DragOverlay, PointerSensor, useSensor, useSensors, closestC
 import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import "./KanbanBoard.css";
 
-export default function KanbanBoard({ tasks, onUpdateTask, onBatchUpdate, onAddTask, onEditTask, columns, onDeleteColumn, searchTerm }) {
+export default function KanbanBoard({ tasks, onUpdateTask, onBatchUpdate, onAddTask, onEditTask, columns, onDeleteColumn, searchTerm, sortOrder }) {
   const [activeTask, setActiveTask] = useState(null);
 
   const sensors = useSensors(
@@ -13,6 +13,8 @@ export default function KanbanBoard({ tasks, onUpdateTask, onBatchUpdate, onAddT
       activationConstraint: { distance: 5 },
     })
   );
+
+  const priorityOrder = { High: 1, Medium: 2, Low: 3 };  
 
   const handleDragStart = (event) => {
     const task = tasks.find((t) => t.id === event.active.id);
@@ -68,13 +70,11 @@ export default function KanbanBoard({ tasks, onUpdateTask, onBatchUpdate, onAddT
       return;
     }
   
-    // 2. Moving over another task
     const overTask = tasks.find((task) => task.id === over.id);
     if (!overTask) return;
   
     const isSameColumn = activeTask.status === overTask.status;
   
-    // Get current list for target column without activeTask
     const targetTasks = tasks
       .filter(
         (task) =>
@@ -89,7 +89,6 @@ export default function KanbanBoard({ tasks, onUpdateTask, onBatchUpdate, onAddT
   
     if (overIndex === -1) return;
   
-    // FIX: If dragging downwards in the same column, shift insertion index by +1
     if (isSameColumn && activeTask.order < overTask.order) {
       overIndex += 1;
     }
@@ -137,9 +136,18 @@ export default function KanbanBoard({ tasks, onUpdateTask, onBatchUpdate, onAddT
     >
       <div className="kanban-board">
         {columns.map((column) => {
-          const columnTasks = filteredTasks
+          let columnTasks = filteredTasks
             .filter((t) => t.status === column.title)
-            .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+            
+            if (sortOrder) {
+              columnTasks = columnTasks.sort((a, b) => {
+                const aValue = priorityOrder[a.priority] || 99;
+                const bValue = priorityOrder[b.priority] || 99;
+                return sortOrder === "asc" ? aValue - bValue : bValue - aValue;
+              });
+            } else {
+              columnTasks = columnTasks.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+            }
 
           return (
             <DroppableColumn

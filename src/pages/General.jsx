@@ -3,8 +3,9 @@ import {HiOutlineUser,HiOutlineFilter,HiOutlineSortAscending,HiOutlineDotsHorizo
 import { useOutletContext } from "react-router-dom";
 import { useAlert } from "../components/AlertModal/AlertContext";
 import { useAuthContext } from "../auth/AuthContext";
-import { writeBatch, doc, collection } from "firebase/firestore";
+import { writeBatch, doc} from "firebase/firestore";
 import { db } from "../Firebase/firebase";
+import { Link , useParams, useNavigate } from "react-router-dom";
 import useFirestoreCollection from "../Firebase/useFirestoreCollection";
 import KanbanBoard from "../components/KanbanBoard/KanbanBoard";
 import TaskModal from "../components/AddTaskModal/Modal";
@@ -17,6 +18,9 @@ export default function General() {
   const users = useAllUsers()
   const {currentUser} = useAuthContext()
   const {searchTerm} = useOutletContext()
+  const {taskId} = useParams()
+  const {showAlert} = useAlert()
+  const navigate = useNavigate()
 
   const {
     data: tasks,
@@ -45,8 +49,6 @@ export default function General() {
   const [editingTask, setEditingTask] = useState(null);
   const [showColumnModal, setShowColumnModal] = useState(false)
 
-  const {showAlert} = useAlert()
-
   const filterRef = useRef(null);
   const sortRef = useRef(null)
 
@@ -60,19 +62,23 @@ export default function General() {
 
   const activeColumns = columns || [];
 
-    const sortedColumns = [...activeColumns].sort(
-      (a, b) => (a.position ?? 0) - (b.position ?? 0)
-    );
+  const sortedColumns = [...activeColumns].sort(
+    (a, b) => (a.position ?? 0) - (b.position ?? 0)
+  );
 
-  const isRestricted = currentUser?.role === "restricted";
+  useEffect(() => {
+    if(taskId && tasks.length > 0){
+      const foundTask = tasks.find((t) => t.id === taskId);
+      if(foundTask){
+        setEditingTask(foundTask);
+        setIsModalOpen(true);
+      }
+    }
+  },[taskId, tasks])
 
   let visibleTasks = tasks.filter((t) => {
     if(!currentUser){
       return false;
-    }
-
-    if(isRestricted){
-      return t.assignee?.id === currentUser?.id
     }
     if (isMyTicketsActive) {
       return t.assignee?.id === currentUser?.id;
@@ -125,6 +131,14 @@ export default function General() {
     setEditingTask(null);
     setDefaultStatus(status)
     setIsModalOpen(true)
+  }
+
+  const handleModalClose = () => {
+    setIsModalOpen(false);
+    setEditingTask(null);
+    if(taskId){
+      navigate('/')
+    }
   }
 
   const handleEditTask = (task) => {
@@ -231,6 +245,7 @@ export default function General() {
  
   return (
     <div className="general-page">
+      <div className={`general-content ${!currentUser } ? "blurred" : ""`}>
       <div className="general-header">
         <h1 className="main-heading">General</h1>
 
@@ -362,6 +377,7 @@ export default function General() {
           columns={sortedColumns}
           onDeleteColumn={handleDeleteColumn}
           searchTerm={searchTerm}
+          sortOrder={sortOrder}
         />
 
           {
@@ -377,7 +393,7 @@ export default function General() {
         {
           isModalOpen && (
             <TaskModal 
-              onClose={() => {setIsModalOpen(false), setEditingTask(null)}} 
+              onClose={handleModalClose} 
               onSave={handleAddTask} 
               defaultStatus={defaultStatus}
               editingTask={editingTask}
@@ -385,6 +401,20 @@ export default function General() {
             />
           )
         }
+      </div>
+
+      {!currentUser && (
+        <div className="logged-out-overlay">
+          <div className="logged-out-message">
+            <h2>Please log in to continue</h2>
+            <p>You need to be signed in to view and manage the task</p>
+            <div className="logged-out-actions">
+              <Link to="/login" className="logged-out-btn primary">login</Link>
+              <Link to="/sign-up" className="logged-out-btn secondary">Sign up</Link>
+            </div>
+          </div>
+        </div>
+      )}
       </div>
   );
 }

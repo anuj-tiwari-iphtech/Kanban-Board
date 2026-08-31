@@ -1,18 +1,13 @@
 .general-page {
     position: relative;
-    width: 100%;
-    height: 93vh;        /* sidebar/viewport jitna hi height */
-    max-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    background: #ffffff;
-    overflow: hidden;      /* page khud scroll na kare */
+    min-height: 93vh;
+    overflow: hidden;      
 }
 
 .general-header {
     width: 100%;
     height: 72px;
-    flex-shrink: 0;         /* header apni height fix rakhe, kabhi shrink na ho */
+    flex-shrink: 0;        
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -167,3 +162,90 @@
     color: #4338ca;
     font-weight: 600;
   }
+
+/* logout overlay */
+
+.general-content {
+  transition: filter 0.3s ease;
+  width: 100%;
+    height: 93vh;        /* sidebar/viewport jitna hi height */
+    max-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background: #ffffff;
+}
+
+.general-content.blurred {
+  filter: blur(10px);
+  pointer-events: none;   /* blur hone pe click/interact na ho sake */
+  user-select: none;
+}
+
+.logged-out-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 500;
+}
+
+.logged-out-message {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 32px 40px;
+  text-align: center;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+  max-width: 380px;
+}
+
+.logged-out-message h2 {
+  font-family: "DM Sans", sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: #171a1f;
+  margin: 0 0 8px 0;
+}
+
+.logged-out-message p {
+  font-family: "DM Sans", sans-serif;
+  font-size: 13px;
+  color: #565e6c;
+  margin: 0 0 24px 0;
+}
+
+.logged-out-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.logged-out-btn {
+  padding: 10px 24px;
+  border-radius: 6px;
+  font-family: "DM Sans", sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.logged-out-btn.primary {
+  background: #4338ca;
+  color: #ffffff;
+}
+
+.logged-out-btn.primary:hover {
+  background: #372aad;
+}
+
+.logged-out-btn.secondary {
+  background: transparent;
+  color: #4338ca;
+  border: 1px solid #4338ca;
+}
+
+.logged-out-btn.secondary:hover {
+  background: #f5f3ff;
+}

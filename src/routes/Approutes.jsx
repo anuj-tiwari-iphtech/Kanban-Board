@@ -4,18 +4,17 @@ import Dashboard from "../pages/Dashboard";
 import General from "../pages/General";
 import Board from "../pages/Board";
 import Report from "../pages/Report";
-import Indox from "../pages/Indox";
 import Setting from "../pages/Setting";
 import Login from "../pages/Login";
 import SignUp from "../pages/Signup";
-import useLocalStorage from "../customHooks/useLocalStorage";
 import Published from "../pages/Published";
 import TodayScheduled from "../pages/TodayScheduled";
 import Bookmark from "../pages/Bookmark";
+import ResetPassword from "../pages/ResetPasswordPage";
 import { useAuthContext } from "../auth/AuthContext";
 
 export default function Approutes() {
-  // const [currentUser , setCurrentUser] = useLocalStorage("kanban-current-user", null)
+  
   const {currentUser, loading} = useAuthContext();
 
   if(loading) return <div>loading...</div>
@@ -25,6 +24,7 @@ export default function Approutes() {
             <Route path="/sign-up" element={<SignUp/>}/>
         <Route path="/" element={<Dashboard />}>
             <Route index element={<General/>}/>
+            <Route path="/task/:taskId" element={<General/>}/>
             <Route path="/board" element={<Board />}/>
             <Route path="/report" element={<Report/>}/>
             <Route path="/setting" element={<Setting/>}/>
@@ -32,6 +32,7 @@ export default function Approutes() {
             <Route path="/today-scheduleds" element={<TodayScheduled/>}/>
             <Route path="/bookmark" element={<Bookmark/>}/>
         </Route> 
+            <Route path="/reset-password" element={<ResetPassword/>}/>
     </Routes>
   )
 }

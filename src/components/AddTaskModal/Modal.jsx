@@ -1,15 +1,17 @@
 import { useState, useRef, useEffect } from "react";
-import {HiOutlineArrowsExpand,HiOutlineDotsHorizontal,HiOutlineX,HiOutlineTag,HiOutlineCalendar,HiOutlineStar,HiPlus, HiOutlineThumbUp, 
-    HiOutlineUser, HiThumbUp, HiOutlineClock, HiOutlineBookmark} from "react-icons/hi";
+import {HiOutlineArrowsExpand,HiOutlineDotsHorizontal,HiOutlineX,HiOutlineTag,HiOutlineCalendar,        HiOutlineStar,HiPlus, HiOutlineThumbUp, 
+    HiOutlineUser, HiThumbUp, HiOutlineClock, HiOutlineBookmark,HiOutlineLink} from "react-icons/hi";
 import { BsCircle } from "react-icons/bs";
+import { priorityConfig } from "../KanbanBoard/TaskCard";
+import { useAuthContext } from "../../auth/AuthContext";
+import { useAlert } from "../AlertModal/AlertContext";
 import AttachmentSection from "./AttachmentSection";
 import DescriptionSection from "./Description";
+import CommentThread from "./CommentThread";
 import useClickOutside from "../../customHooks/useClickOutside";
-import { priorityConfig } from "../KanbanBoard/TaskCard";
+import useAllUsers from "../../auth/users";
 import img from "../../assets/avatar2.png";
 import './Modal.css';
-import { useAuthContext } from "../../auth/AuthContext";
-import useAllUsers from "../../auth/users";
 
 const availableLabels = [
     { name: "Design", color: "#8b5cf6", bg: "#f3e8ff" },
@@ -21,16 +23,9 @@ const availableLabels = [
 
 const priorityOptions = ["High", "Medium", "Low"];
 
-const colorHexMap = {
-    blue: "#159bd7",
-    yellow: "#e99c00",
-    green: "#16a34a",
-    purple: "#8b5cf6",
-    red: "#e5484d",
-};
-
 export default function TaskModal({ onClose, onSave, defaultStatus, editingTask, columns }) {
     const { currentUser } = useAuthContext();
+    const {showAlert} = useAlert();
 
     const users = useAllUsers();
 
@@ -70,6 +65,8 @@ export default function TaskModal({ onClose, onSave, defaultStatus, editingTask,
     const [validationError, setValidationError] = useState("");
     const [isScheduled, setIsScheduled] = useState(editingTask?.isScheduled || false);
     const [isBookmarked, setIsBookmarked] = useState(editingTask?.isBookmarked || false);
+    const [activeReplyId, setActiveReplyId] = useState(null);
+    const [replyInput, setReplyInput] = useState("");
 
     // Refs
     const labelMenuRef = useRef(null);
@@ -127,6 +124,18 @@ export default function TaskModal({ onClose, onSave, defaultStatus, editingTask,
         onSave(newTask);
     };
 
+    // Extra Properties
+    const allExtraProperties = [
+        { key: "assignee", label: "Assignee" },
+        { key: "scheduled", label: "Today's Scheduled" },
+        { key: "bookmark", label: "Bookmark" }
+    ];
+
+    const handleAddProperty = (key) => {
+        setVisibleProperties((prev) => [...prev, key]);
+        setShowAddPropertyMenu(false);
+    };
+
     const handleAddComment = () => {
         if (commentInput.trim() === "") return;
 
@@ -142,32 +151,95 @@ export default function TaskModal({ onClose, onSave, defaultStatus, editingTask,
             }),
             likes: 0,
             liked: false,
+            replies:[],
         };
         setComments((prev) => [...prev, newComment]);
         setCommentInput("");
     };
 
-    // Extra Properties
-    const allExtraProperties = [
-        { key: "assignee", label: "Assignee" },
-        { key: "scheduled", label: "Today's Scheduled" },
-        { key: "bookmark", label: "Bookmark" }
-    ];
+    const addReplyToTree = (comments,targetId,newReply) => {
+        return comments.map((comment) => {
+            if(comment.id === targetId){
+                return {...comment, replies: [...(comment.replies || []), newReply]}
+            }
+            if(comment.replies && comment.replies.length > 0){
+                return {...comment, replies: addReplyToTree(comment.replies, targetId, newReply)}
+            }
+            return comment;
+        })
+    }
 
-    const handleAddProperty = (key) => {
-        setVisibleProperties((prev) => [...prev, key]);
-        setShowAddPropertyMenu(false);
+    const handleAddReply = (parentId) => {
+        if (replyInput.trim() === "") return;
+    
+        const newReply = {
+            id: Date.now(),
+            name: currentUser?.name || "You",
+            avatar: currentUser?.avatar || img,
+            text: replyInput.trim(),
+            time: new Date().toLocaleDateString("en-US", {
+                hour: "numeric",
+                minute: "2-digit",
+                hour12: true,
+            }),
+            likes: 0,
+            liked: false,
+            replies: [],
+        };
+    
+        setComments((prev) => addReplyToTree(prev, parentId, newReply));
+        setReplyInput("");
+        setActiveReplyId(null);
     };
 
-    const handleLikeToggle = (commentId) => {
-        setComments((prev) =>
-            prev.map((c) =>
-                c.id === commentId
-                    ? { ...c, liked: !c.liked, likes: c.liked ? c.likes - 1 : c.likes + 1 }
-                    : c
-            )
-        );
-    };
+    const toggleLikeInTree = (comments, targetId) => {
+        return comments.map((c) => {
+          if (c.id === targetId) {
+            return { ...c, liked: !c.liked, likes: c.liked ? c.likes - 1 : c.likes + 1 };
+          }
+          if (c.replies && c.replies.length > 0) {
+            return { ...c, replies: toggleLikeInTree(c.replies, targetId) };
+          }
+          return c;
+        });
+      };
+      
+      const handleLikeToggle = (commentId) => {
+          setComments((prev) => toggleLikeInTree(prev, commentId));
+      };
+
+    const handleCopyLink = async () => {
+        if (!editingTask?.id) {
+          showAlert("Save the task first to get a shareable link.", "warning");
+          return;
+        }
+      
+        const link = `${window.location.origin}/task/${editingTask.id}`;
+      
+        try {
+          await navigator.clipboard.writeText(link);
+          showAlert("Link copied to clipboard!", "success");
+        } catch (error) {
+          // Fallback — purana document.execCommand method (deprecated but works on HTTP)
+          const textArea = document.createElement("textarea");
+          textArea.value = link;
+          textArea.style.position = "fixed";
+          textArea.style.opacity = "0";
+          document.body.appendChild(textArea);
+          textArea.focus();
+          textArea.select();
+      
+          try {
+            document.execCommand("copy");
+            showAlert("Link copied to clipboard!", "success");
+          } catch (fallbackError) {
+            showAlert(`Copy failed. Link: ${link}`, "warning");
+            console.error("Copy failed:", fallbackError);
+          }
+      
+          document.body.removeChild(textArea);
+        }
+      };
 
     const today = new Date();
     const todayString = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
@@ -198,6 +270,11 @@ export default function TaskModal({ onClose, onSave, defaultStatus, editingTask,
                                     onClick={() => setIsExpanded((prev) => !prev)}
                                 />
                                 <div className="modal-icon-right">
+                                    <HiOutlineLink 
+                                        onClick={handleCopyLink}
+                                        style={{ cursor: "pointer" }}
+                                        title="Copy shareable link"
+                                    />
                                     <HiOutlineDotsHorizontal />
                                     <HiOutlineX onClick={onClose} />
                                 </div>
@@ -218,6 +295,7 @@ export default function TaskModal({ onClose, onSave, defaultStatus, editingTask,
                     <div className="modal-property-row" ref={labelMenuRef}>
                         <HiOutlineTag className="property-icon" />
                         <span className="modal-property-label">Label</span>
+                        
                         <button 
                             className={`modal-add-btn ${labels.length > 0 ? "has-labels" : ""}`}
                             onClick={() => setShowLabels((prev) => !prev)}
@@ -326,9 +404,10 @@ export default function TaskModal({ onClose, onSave, defaultStatus, editingTask,
                         )}
                     </div>
 
-                    <div className="modal-property-row" ref={statusRef}>
+                    <div className="modal-property-row">
                         <BsCircle className="property-icon" />
                         <span className="modal-property-label">Status</span>
+                        <div className="dropdown-wrapper" ref={statusRef} style={{position : "relative"}}>
                         <button 
                             className="modal-add-btn"
                             onClick={() => setShowStatus((prev) => !prev)}
@@ -357,6 +436,7 @@ export default function TaskModal({ onClose, onSave, defaultStatus, editingTask,
                                 ))}
                             </div>
                         )}
+                        </div>
                     </div>
 
                     {visibleProperties.includes("assignee") && (
@@ -486,26 +566,18 @@ export default function TaskModal({ onClose, onSave, defaultStatus, editingTask,
                         </div>
 
                         {comments.map((comment) => (
-                            <div key={comment.id} className="comment-item">
-                                <img src={comment.avatar} alt={comment.name} className="comment-avatar" />
-                                <div className="comment-body">
-                                    <div className="comment-meta">
-                                        <span className="comment-name">{comment.name}</span>
-                                        <span className="comment-time">{comment.time}</span>
-                                    </div>
-                                    <p className="comment-text">{comment.text}</p>
-                                    <div className="comment-actions">
-                                        <button
-                                            className={`comment-action-btn ${comment.liked ? "liked" : ""}`}
-                                            onClick={() => handleLikeToggle(comment.id)}
-                                        >
-                                            {comment.liked ? <HiThumbUp /> : <HiOutlineThumbUp />}
-                                            {comment.likes > 0 ? ` (${comment.likes})` : ""}
-                                        </button>
-                                        <button className="comment-action-btn">Reply</button>
-                                    </div>
-                                </div>
-                            </div>
+                           <CommentThread
+                           key={comment.id}
+                           comment={comment}
+                           depth={0}
+                           onLike={handleLikeToggle}
+                           onReplyClick={(id) => setActiveReplyId((prev) => (prev === id ? null : id))}
+                           activeReplyId={activeReplyId}
+                           replyInput={replyInput}
+                           setReplyInput={setReplyInput}
+                           onSubmitReply={handleAddReply}
+                           currentUserAvatar={currentUser?.avatar || img}
+                            />
                         ))}
                     </div>
 

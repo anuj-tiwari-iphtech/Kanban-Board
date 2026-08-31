@@ -2,9 +2,17 @@ import TaskTable from "../components/TaskTable/TaskTable"
 import useFirestoreCollection from "../Firebase/useFirestoreCollection"
 import { useAuthContext } from "../auth/AuthContext"
 
-
 export default function Published() {
   const {currentUser} = useAuthContext()
+
+  if (!currentUser) {
+    return (
+      <div className="board-page">
+        <p className="board-empty-text">Please log in to view the board.</p>
+      </div>
+    );
+  }
+
 
   const {
     data: tasks,

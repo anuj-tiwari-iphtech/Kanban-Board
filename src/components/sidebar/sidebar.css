@@ -1,6 +1,4 @@
-/* ==========================================
-   Base Desktop Styles
-   ========================================== */
+
    .sidebar-container {
     height: 100vh;
     width: 300px;
@@ -88,7 +86,8 @@
   
   .sidebar-menu2 .menu-item.selected {
     font-weight: 500;
-    color: #4F46E5FF;
+    color: #ffffff;
+    background: #4F46E5FF;
   }
   
   .sidebar-menu .icon,

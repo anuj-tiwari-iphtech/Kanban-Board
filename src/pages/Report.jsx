@@ -4,6 +4,16 @@ import ReportPage from "../components/Report/ReportPage";
 
 export default function ReportPageContainer() {
   const { currentUser } = useAuthContext();
+
+  if (!currentUser) {
+    return (
+      <div className="board-page">
+        <p className="board-empty-text">Please log in to view the board.</p>
+      </div>
+    );
+  }
+
+
   const userId = currentUser?.id;
 
   const { data: tasks, loading: tasksLoading } = useFirestoreCollection("tasks", userId);
