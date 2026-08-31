@@ -18,8 +18,29 @@ A React-based Kanban task management application for organizing tasks, users, sp
 
 ## How to Run
 
-### 1. Install dependencies
+### 1. Clone a repository
+
+```bash
+git clone https://github.com/anuj-tiwari-iphtech/Kanban-Board.git
+cd Kanban-board
+```
+
+### 2. Install Dependencies
 
 ```bash
 npm install
+```
+
+### 3. Start The Server
+
+```bash
+npm run dev
+```
+
+### 4. Open the Application
+
+- Open the URL shown in the terminal, usually:
+
+```bash
+http://localhost:5173
 ```
