@@ -2,8 +2,7 @@
 
 A full-featured, real-time Kanban board application built with React and Firebase. Manage tasks across customizable columns, organize work into sprints, collaborate with threaded comments, and track progress with built-in analytics — all synced live across devices.
 
-##Demo
-
+# Board
 ![Kanban Board Demo](./public/gif.png)
 
 ## Features
@@ -149,3 +148,26 @@ src/
 ## License
 
 This project is for educational/personal use. Add a license of your choice if distributing publicly.
+
+# ScreenShots
+
+## Login Page
+![loginPage](./public/login.png)
+
+## Add Task Modal
+![loginPage](./public/AddTaskModel.png)
+
+## Sprints Page
+![loginPage](./public/Sprints.png)
+
+## Report Page
+![loginPage](./public/Report.png)
+
+## Setting Page
+![loginPage](./public/Setting.png)
+
+## Published Page
+![loginPage](./public/Published.png)
+
+## Today Scheduled Page
+![loginPage](./public/todayScheduled.png)
