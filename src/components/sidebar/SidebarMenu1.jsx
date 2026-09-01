@@ -12,8 +12,8 @@ import "./sidebar.css";
 export default function SidebarMenu1({active, setActive}) {
 
   const menuItems = [
-    { label: "General", icon: <HiHome />, path:"/" },
-    { label: "Board", icon: <HiOutlineViewGrid />, path:"/board"},
+    { label: "Board", icon: <HiHome />, path:"/" },
+    { label: "Sprints", icon: <HiOutlineViewGrid />, path:"/board"},
     { label: "Report", icon: <HiOutlineChartBar />, path: "/report"},
     { label: "Settings", icon: <HiOutlineCog />, path:"/setting" }
   ];
