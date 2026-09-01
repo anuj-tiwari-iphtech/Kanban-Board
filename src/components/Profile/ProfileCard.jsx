@@ -6,6 +6,9 @@ import {
   HiOutlineLockClosed,
   HiOutlinePhone,
   HiOutlineMail,
+  HiOutlineDocumentText,
+  HiOutlineShieldCheck,
+  HiOutlineExternalLink,
 } from "react-icons/hi";
 import { useAlert } from "../AlertModal/AlertContext";
 import { doc, updateDoc } from "firebase/firestore";
@@ -39,6 +42,8 @@ export default function ProfileCard({ currentUser, setCurrentUser }) {
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+
+  const [showAgreementModal, setShowAgreementModal] = useState(false);
 
   if (!currentUser) {
     return (
@@ -128,7 +133,6 @@ export default function ProfileCard({ currentUser, setCurrentUser }) {
       <h1 className="main-heading">Settings</h1>
 
       <div className="settings-grid">
-        {/* Main Profile Card */}
         <div className="profile-card">
           <div className="profile-card-header">
             <h3>My Profile</h3>
@@ -267,32 +271,110 @@ export default function ProfileCard({ currentUser, setCurrentUser }) {
           )}
         </div>
 
-        {/* Side Info / Support Card */}
-        <div className="support-card">
-          <div className="support-card-header">
-            <h3>Support & Help</h3>
-            <p>Need assistance with your account?</p>
-          </div>
-
-          <div className="contact-details">
-            <div className="contact-item">
-              <HiOutlinePhone className="contact-icon" />
-              <div>
-                <span className="contact-label">Call Support</span>
-                <span className="contact-number">+91 7555755525</span>
-              </div>
+        <div className="settings-sidebar">
+          <div className="settings-side-card">
+            <div className="side-card-header">
+              <h3>Legal & Policies</h3>
+              <p>Review terms and compliance details.</p>
             </div>
 
-            <div className="contact-item">
-              <HiOutlineMail className="contact-icon" />
-              <div>
-                <span className="contact-label">Email Us</span>
-                <span className="contact-text">support@yourdomain.com</span>
+            <div className="legal-links">
+              <button
+                className="legal-link-btn"
+                onClick={() => setShowAgreementModal(true)}
+              >
+                <span className="legal-link-title">
+                  <HiOutlineDocumentText className="legal-icon" /> User Agreement
+                </span>
+                <HiOutlineExternalLink />
+              </button>
+
+              <button
+                className="legal-link-btn"
+                onClick={() => setShowAgreementModal(true)}
+              >
+                <span className="legal-link-title">
+                  <HiOutlineShieldCheck className="legal-icon" /> Privacy Policy
+                </span>
+                <HiOutlineExternalLink />
+              </button>
+            </div>
+          </div>
+
+          <div className="settings-side-card">
+            <div className="side-card-header">
+              <h3>Support & Help</h3>
+              <p>Need assistance with your account?</p>
+            </div>
+
+            <div className="contact-details">
+              <div className="contact-item">
+                <HiOutlinePhone className="contact-icon" />
+                <div>
+                  <span className="contact-label">Call Support</span>
+                  <span className="contact-number">+91 7555755525</span>
+                </div>
+              </div>
+
+              <div className="contact-item">
+                <HiOutlineMail className="contact-icon" />
+                <div>
+                  <span className="contact-label">Email Us</span>
+                  <span className="contact-text">support@yourdomain.com</span>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
+
+      {showAgreementModal && (
+        <div className="agreement-modal-overlay">
+          <div className="agreement-modal-content">
+            <div className="agreement-modal-header">
+              <h2>User Agreement & Terms of Service</h2>
+              <button
+                className="close-modal-btn"
+                onClick={() => setShowAgreementModal(false)}
+              >
+                <HiOutlineX />
+              </button>
+            </div>
+            <div className="agreement-modal-body">
+              <p className="agreement-updated">Last Updated: January 2026</p>
+              
+              <h4>1. Introduction</h4>
+              <p>
+                Welcome to our platform. By accessing or using our services,
+                you agree to be bound by these terms and conditions.
+              </p>
+
+              <h4>2. User Responsibilities</h4>
+              <p>
+                You are responsible for maintaining the confidentiality of your account credentials and for all activities that occur under your account.
+              </p>
+
+              <h4>3. Data Protection & Privacy</h4>
+              <p>
+                Your personal details, profile updates, and authentication details are protected and processed in according to our platform standard security guidelines.
+              </p>
+
+              <h4>4. Termination</h4>
+              <p>
+                We reserve the right to suspend or terminate accounts that violate our terms of service or misuse platform permissions.
+              </p>
+            </div>
+            <div className="agreement-modal-footer">
+              <button
+                className="profile-save-btn"
+                onClick={() => setShowAgreementModal(false)}
+              >
+                I Understand
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
