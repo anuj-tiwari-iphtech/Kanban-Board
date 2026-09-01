@@ -78,6 +78,14 @@
     margin-bottom: 8px;
 }
 
+.task-id-display {
+    font-family: "DM Sans", sans-serif;
+    font-size: 11px;
+    color: #b0b5bd;
+    margin: 0 0 4px 0;
+    font-family: monospace; 
+}
+
 .modal-title-input {
     width: 100%;
     border: none;

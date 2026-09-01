@@ -283,6 +283,20 @@ export default function TaskModal({ onClose, onSave, defaultStatus, editingTask,
                     </div>
 
                     <p className="modal-breadcrumb">General</p>
+
+                    {editingTask?.id && (
+                        <p 
+                            className="task-id-display" 
+                            onClick={() => {
+                                navigator.clipboard.writeText(editingTask.id);
+                                showAlert("Task ID copied!", "success");
+                            }}
+                            style={{ cursor: "pointer" }}
+                            title="Click to copy"
+                        >
+                            ID: {editingTask.id}
+                        </p>
+                    )}
                     
                     <input 
                         type="text"
