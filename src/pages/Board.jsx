@@ -31,6 +31,7 @@ export default function Board() {
   const [showAddTaskModal, setShowAddTaskModal] = useState(false)
   const [editingTask, setEditingTask] = useState(null);
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
+  const [selectedTaskIds, setSelectedTaskIds] = useState([]);
   const {showAlert} = useAlert();
 
   if (!currentUser) {
@@ -57,6 +58,12 @@ export default function Board() {
   const handleCreateSprint = async (name, startDate, endDate) => {
     try{
       const docRef = await addSprint({ name, startDate, endDate});
+      if (selectedTaskIds.length > 0) {
+        await Promise.all(
+          selectedTaskIds.map((taskId) => updateTask(taskId, { sprintId: docRef.id }))
+        );
+        setSelectedTaskIds([]);   
+      }
       setActiveTab(docRef.id);
       setShowCreateSprint(false);
       showAlert(`${name} created successfully`, "success");
@@ -129,6 +136,13 @@ export default function Board() {
       console.log(error);
     }
   }
+
+  const handleToggleSelect = (taskId) => {
+    setSelectedTaskIds((prev) =>
+      prev.includes(taskId) ? prev.filter((id) => id !== taskId) : [...prev, taskId]
+    );
+  };
+
   return (
     <>
       <div className="board-page">
@@ -182,11 +196,14 @@ export default function Board() {
         )}
 
         <div className="sprint-task-list">
-          <TaskTable 
+          <TaskTable
             tasks={activeTab === "backlog" ? backlogTasks : activeSprintTasks}
             onEditTask={handleTaskClick}
-            showRemove={activeTab !== "backlog"}          
-            onRemove={handleRemoveTaskFromSprint}          
+            showRemove={activeTab !== "backlog"}
+            onRemove={handleRemoveTaskFromSprint}
+            selectable={activeTab === "backlog"}         
+            selectedIds={selectedTaskIds}                   
+            onToggleSelect={handleToggleSelect}             
           />
         </div>
 

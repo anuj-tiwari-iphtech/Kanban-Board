@@ -1,17 +1,33 @@
 .scheduled-page {
-    padding: 24px;
-  }
-  
-  .scheduled-task-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 16px;
-    margin-top: 20px;
-  }
-  
-  .scheduled-empty-text {
-    color: #8b95a7;
-    font-size: 13px;
-    text-align: center;
-    padding: 60px 20px;
-  }
+  padding: 24px;
+}
+
+.scheduled-task-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+  margin-top: 20px;
+}
+
+.scheduled-empty-text {
+  color: #8b95a7;
+  font-size: 13px;
+  text-align: center;
+  padding: 60px 20px;
+}
+
+.published-sprint-block {
+  margin-top: 20px;
+  margin-bottom: 32px;
+}
+
+.published-sprint-title {
+  font-family: "DM Sans", sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  color: #171a1f;
+  margin: 0 0 12px 0;
+  padding-bottom: 8px;
+  border-bottom: 2px solid #16a34a;
+  display: inline-block;
+}
