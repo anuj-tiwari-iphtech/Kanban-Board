@@ -133,6 +133,21 @@
   text-decoration: underline;
 }
 
+.task-table-checkbox-col {
+  width: 36px;
+}
+
+.task-table input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: #4338ca;
+  cursor: pointer;
+}
+
+.row-selected {
+  background: #f5f3ff;
+}
+
 @media (max-width: 768px) {
   .task-table th,
   .task-table td {

@@ -9,16 +9,28 @@ const statusColorMap = {
   "DONE": { bg: "#e8f8ed", color: "#16a34a" },
 };
 
-export default function TaskTable({ tasks, onEditTask, onRemove, showRemove }) {
+export default function TaskTable({ 
+  tasks = [], 
+  onEditTask, 
+  onRemove, 
+  showRemove,
+  selectable = false,        
+  selectedIds = [],           
+  onToggleSelect,             
+}) {
   if (!tasks || tasks.length === 0) {
     return <p className="task-table-empty">No tasks to show.</p>;
   }
+
+  const allSelected = tasks.length > 0 && tasks.every((t) => selectedIds.includes(t.id));
 
   return (
     <div className="task-table-wrapper">
       <table className="task-table">
         <thead>
           <tr>
+          {selectable && (
+            <th className="task-table-checkbox-col"></th> )}  
             <th>Summary</th>
             <th>Status</th>
             <th>Assignee</th>
@@ -29,15 +41,25 @@ export default function TaskTable({ tasks, onEditTask, onRemove, showRemove }) {
         </thead>
         <tbody>
           {tasks.map((task) => {
-            const normalizedStatus = task.status?.toUpperCase() || "";
-            const statusStyle = statusColorMap[normalizedStatus] || { 
-              bg: "#eceef1", 
-              color: "#565e6c" 
-            };
+            const statusStyle = statusColorMap[task.status] || { bg: "#eceef1", color: "#565e6c" };
             const priorityStyle = priorityConfig[task.priority] || {};
+            const isChecked = selectedIds.includes(task.id);
 
             return (
-              <tr key={task.id} className="task-table-row" onClick={() => onEditTask(task)}>
+              <tr 
+                key={task.id} 
+                className={`task-table-row ${isChecked ? "row-selected" : ""}`}
+                onClick={() => onEditTask(task)}
+              >
+                {selectable && (
+                  <td onClick={(e) => e.stopPropagation()}>
+                    <input
+                      type="checkbox"
+                      checked={isChecked}
+                      onChange={() => onToggleSelect(task.id)}
+                    />
+                  </td>
+                )}
                 <td className="task-table-summary">
                   <HiOutlineChevronRight className="row-chevron" />
                   {task.name}
@@ -70,12 +92,12 @@ export default function TaskTable({ tasks, onEditTask, onRemove, showRemove }) {
                     <span className="task-table-empty-cell">—</span>
                   )}
                 </td>
-                {showRemove && (   
+                {showRemove && (
                   <td>
                     <button
                       className="task-table-remove-btn"
                       onClick={(e) => {
-                        e.stopPropagation();  
+                        e.stopPropagation();
                         onRemove(task.id);
                       }}
                     >
