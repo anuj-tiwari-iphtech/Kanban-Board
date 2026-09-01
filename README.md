@@ -4,7 +4,7 @@ A full-featured, real-time Kanban board application built with React and Firebas
 
 ##Demo
 
-![Kanban Board Demo](./gif.png)
+![Kanban Board Demo](./public/gif.png)
 
 ## Features
 

@@ -123,7 +123,7 @@ export default function Login() {
           <div className="logo-icon" />
         </div>
 
-        <h1 className="login-title">Welcome to TaskFlow</h1>
+        <h1 className="login-title">Welcome to Kanban Board</h1>
         <p className="login-subtitle">Your Gateway to Intelligent Interaction</p>
 
         <form onSubmit={handleSubmit} className="login-form" noValidate>

@@ -33,6 +33,7 @@ export default function General() {
   const {
     data: tasks,
     add: addTask,
+    addWithCustomId,
     update: updateTask,
     batchUpdate,
   } = useFirestoreCollection("tasks", currentUser?.id, true);
@@ -156,7 +157,7 @@ export default function General() {
         await updateTask(editingTask.id, newTask);
         showAlert("Task updated successfully!", "success");
       } else {
-        await addTask(newTask);
+        await addWithCustomId(newTask, "Task");
         showAlert("Task created successfully!", "success");
       }
       setIsModalOpen(false);
