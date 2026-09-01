@@ -24,7 +24,6 @@ export default function Navbar({ toggleSidebar, searchTerm, setSearchTerm }) {
     try {
       await signOut(auth);
       setShowProfileMenu(false);
-      // navigate("/login")
     } catch (error){
       console.error("Logout error:", error);
     }
@@ -49,9 +48,6 @@ export default function Navbar({ toggleSidebar, searchTerm, setSearchTerm }) {
       </div>
 
       <div className="navbar-actions">
-        <Link to="/setting" className="navbar-icon" type="button">
-          <HiOutlineCog />
-        </Link>
 
         <div className="navbar-profile-wrapper" ref={profileRef}>
           <div className="navbar-profile" onClick={() => setShowProfileMenu((prev) => !prev)}>
