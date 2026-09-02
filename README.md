@@ -2,7 +2,10 @@
 
 A full-featured, real-time Kanban board application built with React and Firebase. Manage tasks across customizable columns, organize work into sprints, collaborate with threaded comments, and track progress with built-in analytics — all synced live across devices.
 
-# Board
+##  Live Demo
+[View the live application](https://kanban-board-ys9h.vercel.app/)
+
+## Board
 ![Kanban Board Demo](./public/gif.png)
 
 ## Features
