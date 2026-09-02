@@ -1,0 +1,123 @@
+.faq-page {
+    padding: 32px 40px;
+    width: 100%;
+    max-width: 1050px;
+    margin: 0 auto;
+    font-family: "DM Sans", sans-serif;
+}
+  
+.faq-page .main-heading {
+    margin: 0 0 6px 0;
+    font-size: 28px;
+    font-weight: 700;
+    color: #171a1f;
+    letter-spacing: -0.5px;
+}
+
+.faq-subtitle {
+    font-size: 14px;
+    color: #8b95a7;
+    margin: 0 0 28px 0;
+    font-weight: 400;
+}
+
+.faq-list {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.faq-item {
+    width: 100%;
+    background: #ffffff;
+    border: 1px solid #eceef1;
+    border-radius: 12px;
+    overflow: hidden;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+}
+
+.faq-item:hover {
+border-color: #d7dae0;
+}
+
+.faq-item.open {
+    border-color: #eeecff;
+    box-shadow: 0 6px 18px rgba(67, 56, 202, 0.06);
+}
+
+.faq-question {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 18px 20px;
+    border: none;
+    background: #ffffff;
+    cursor: pointer;
+    text-align: left;
+    font-family: "DM Sans", sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    color: #171a1f;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.faq-question:hover {
+    background: #fdfdfd;
+}
+
+.faq-item.open .faq-question {
+    color: #4338ca;
+}
+
+.faq-chevron {
+    width: 20px;
+    height: 20px;
+    color: #8b95a7;
+    flex-shrink: 0;
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), color 0.2s ease;
+}
+
+.faq-chevron.rotated {
+    transform: rotate(180deg);
+    color: #4338ca;
+}
+
+.faq-answer {
+    padding: 0 20px 20px 20px;
+    background: #ffffff;
+}
+
+.faq-answer p {
+    font-family: "DM Sans", sans-serif;
+    font-size: 14px;
+    color: #565e6c;
+    line-height: 1.6;
+    margin: 0;
+}
+
+@media (max-width: 640px) {
+    .faq-page {
+        padding: 24px 16px;
+    }
+
+    .faq-page .main-heading {
+        font-size: 24px;
+    }
+
+    .faq-subtitle {
+        font-size: 14px;
+    }
+
+    .faq-question {
+        padding: 16px;
+        font-size: 14px;
+    }
+
+    .faq-answer {
+        padding: 0 16px 16px 16px;
+    }
+}

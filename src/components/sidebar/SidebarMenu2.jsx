@@ -1,4 +1,4 @@
-import { HiOutlineCheckCircle, HiOutlineBookmark } from "react-icons/hi";
+import { HiOutlineCheckCircle, HiOutlineBookmark,HiOutlineQuestionMarkCircle } from "react-icons/hi";
 import { BsStopwatch } from "react-icons/bs";
 import { useNavigate } from "react-router-dom";
 import './sidebar.css'
@@ -8,7 +8,8 @@ export default function SidebarMenu2({active, setActive}) {
     const items = [
         {label: "Published", icon: <HiOutlineCheckCircle/> , path :"/published"},
         {label: "Today's Scheduled", icon: <BsStopwatch/> , path : "/today-scheduleds"},
-        {label: "Bookmark", icon: <HiOutlineBookmark/>, path : "/bookmark"}
+        {label: "Bookmark", icon: <HiOutlineBookmark/>, path : "/bookmark"},
+        { label: "FAQ", icon: <HiOutlineQuestionMarkCircle />, path: "/faq" }
     ]
   return (
     <>

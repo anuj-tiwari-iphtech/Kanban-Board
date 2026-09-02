@@ -12,6 +12,7 @@ import TodayScheduled from "../pages/TodayScheduled";
 import Bookmark from "../pages/Bookmark";
 import ResetPassword from "../pages/ResetPasswordPage";
 import { useAuthContext } from "../auth/AuthContext";
+import Faq from "../pages/faq";
 
 export default function Approutes() {
   
@@ -31,6 +32,7 @@ export default function Approutes() {
             <Route path="/published" element={<Published/>}/>
             <Route path="/today-scheduleds" element={<TodayScheduled/>}/>
             <Route path="/bookmark" element={<Bookmark/>}/>
+            <Route path="/faq" element={<Faq/>}/>
         </Route> 
             <Route path="/reset-password" element={<ResetPassword/>}/>
     </Routes>
