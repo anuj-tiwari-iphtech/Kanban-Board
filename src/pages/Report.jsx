@@ -28,13 +28,6 @@ export default function ReportPageContainer() {
     };
   }, [tasks, sprints]);
 
-  if (!currentUser) {
-    return (
-      <div className="board-page">
-        <p className="board-empty-text">Please log in to view the board.</p>
-      </div>
-    );
-  }
 
   if (tasksLoading || columnsLoading || sprintsLoading) {
     return <div className="report-loader">Loading live analytics from Firebase...</div>;

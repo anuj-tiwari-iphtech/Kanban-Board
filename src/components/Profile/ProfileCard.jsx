@@ -57,6 +57,11 @@ export default function ProfileCard({ currentUser, setCurrentUser }) {
   }
 
   const handleSaveProfile = async () => {
+    if(!currentUser){
+      showAlert("Please log in to update your profile","warning");
+      return;
+    }
+
     if (!name.trim()) {
       showAlert("Name cannot be empty.", "warning");
       return;

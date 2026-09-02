@@ -452,23 +452,6 @@ export default function General() {
           />
         )}
       </div>
-
-      {!currentUser && (
-        <div className="logged-out-overlay">
-          <div className="logged-out-message">
-            <h2>Please log in to continue</h2>
-            <p>You need to be signed in to view and manage tasks</p>
-            <div className="logged-out-actions">
-              <Link to="/login" className="logged-out-btn primary">
-                Login
-              </Link>
-              <Link to="/sign-up" className="logged-out-btn secondary">
-                Sign up
-              </Link>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

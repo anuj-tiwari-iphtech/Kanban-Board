@@ -34,13 +34,13 @@ export default function Board() {
   const [selectedTaskIds, setSelectedTaskIds] = useState([]);
   const {showAlert} = useAlert();
 
-  if (!currentUser) {
-    return (
-      <div className="board-page">
-        <p className="board-empty-text">Please log in to view the board.</p>
-      </div>
-    );
-  }
+  // if (!currentUser) {
+  //   return (
+  //     <div className="board-page">
+  //       <p className="board-empty-text">Please log in to view the board.</p>
+  //     </div>
+  //   );
+  // }
 
   const backlogTasks = useMemo(() => {
     return tasks.filter((t) => !t.sprintId);

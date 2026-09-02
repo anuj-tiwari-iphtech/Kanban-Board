@@ -23,7 +23,7 @@ export default function Approutes() {
     <Routes>
             <Route path="/login" element={<Login />}/>
             <Route path="/sign-up" element={<SignUp/>}/>
-        <Route path="/" element={<Dashboard />}>
+        <Route path="/" element={<Dashboard currentUser={currentUser}/>}>
             <Route index element={<General/>}/>
             <Route path="/task/:taskId" element={<General/>}/>
             <Route path="/board" element={<Board />}/>

@@ -5,7 +5,7 @@ import "./faq.css";
 const faqData = [
   {
     question: "What is a restricted user?",
-    answer: "A restricted user is a team member with limited access to the board. Restricted users can only view tasks assigned to them or to other restricted users — they cannot see the full board or tasks assigned to admins.",
+    answer: "A restricted user is a team member with limited access to the board. Restricted users can view all tasks assigned to them or to other restricted users — they can see the full board or tasks assigned to admins.",
   },
   {
     question: "Why can't I see all tasks on the board?",
@@ -17,7 +17,7 @@ const faqData = [
   },
   {
     question: "Can I create and edit tasks?",
-    answer: "Yes. Restricted users can create new tasks and edit any task they are assigned to, including updating status, priority, due dates, comments, and attachments.",
+    answer: "No. Restricted users cannoy create new tasks and edit any task they are assigned to, including updating status, priority, due dates, comments, and attachments.",
   },
   {
     question: "Can I use Filter and Sort?",

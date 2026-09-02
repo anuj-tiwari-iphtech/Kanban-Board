@@ -28,14 +28,6 @@ export default function Published() {
     });
   }, [tasks, sprints]);
 
-  if (!currentUser) {
-    return (
-      <div className="board-page">
-        <p className="board-empty-text">Please log in to view the board.</p>
-      </div>
-    );
-  }
-
   const handleTaskClick = (task) => {
     setEditingTask(task);
     setIsTaskModalOpen(true);
@@ -48,7 +40,7 @@ export default function Published() {
       setIsTaskModalOpen(false);
       setEditingTask(null);
     } catch (error) {
-      console.error("Failed to update task:", error);   // FIXED — pehle '.' tha ',' ki jagah, syntax error deta
+      console.error("Failed to update task:", error);   
       showAlert("Failed to update Task", "error");
     }
   };

@@ -25,14 +25,6 @@ export default function Bookmark() {
    return tasks.filter((t) => t.isBookmarked)
   },[tasks])
 
-  if (!currentUser) {
-    return (
-      <div className="board-page">
-        <p className="board-empty-text">Please log in to view the board.</p>
-      </div>
-    );
-  }
-
   const handleTaskClick =(task) => {
     setEditingTask(task);
     setIsTaskModalOpen(true);
