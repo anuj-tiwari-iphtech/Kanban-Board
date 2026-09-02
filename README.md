@@ -64,16 +64,16 @@ A full-featured, real-time Kanban board application built with React and Firebas
 
 ## Tech Stack
 
-| Category | Technology |
-|---|---|
-| Frontend | React (Vite) |
-| Routing | React Router |
-| Backend / Database | Firebase Authentication, Firebase Firestore (real-time) |
-| Drag & Drop | @dnd-kit/core, @dnd-kit/sortable |
-| Charts | Recharts |
-| Icons | react-icons |
-| Validation | Zod |
-| Styling | Plain CSS (component-scoped stylesheets) |
+| Category | Technology | Version |
+|---|---|---|
+| Frontend | React (Vite) | 19.2.8 |
+| Routing | React Router | 7.18.2 |
+| Backend / Database | Firebase Authentication, Firebase Firestore (real-time) | 12.18.0 |
+| Drag & Drop | @dnd-kit/core, @dnd-kit/sortable | 6.3.1 |
+| Charts | Recharts | 3.10.1 |
+| Icons | react-icons | 5.7.0 |
+| Validation | Zod | 4.4.3 |
+| Styling | Plain CSS (component-scoped stylesheets) |  |
 
 ## Getting Started
 
