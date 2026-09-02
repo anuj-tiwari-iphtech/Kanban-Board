@@ -38,8 +38,7 @@ export default function KanbanBoard({ tasks, onUpdateTask, onBatchUpdate, onAddT
       if (activeTask.status === overColumn.title) return;
   
       const targetTasks = tasks
-        .filter(
-          (task) =>
+        .filter((task) =>
             task.status === overColumn.title &&
             task.id !== activeTask.id
         )
@@ -118,7 +117,8 @@ export default function KanbanBoard({ tasks, onUpdateTask, onBatchUpdate, onAddT
     if (!search) return true;
     return (
       task.name?.toLowerCase().includes(search) ||
-      task.description?.toLowerCase().includes(search)
+      task.description?.toLowerCase().includes(search) || 
+      task.id?.toLowerCase().includes(search)
     );
   });
 

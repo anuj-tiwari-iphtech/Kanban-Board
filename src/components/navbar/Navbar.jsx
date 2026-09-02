@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { HiOutlineSearch, HiOutlineCog, HiOutlineLogin, HiOutlineLogout, HiOutlineUserAdd, HiMenu, HiOutlineMail } from "react-icons/hi";
 import { signOut } from "firebase/auth";
 import { auth } from "../../Firebase/firebase";
@@ -9,13 +9,11 @@ import useClickOutside from "../../customHooks/useClickOutside";
 import InviteModal from "../InviteModal/InviteModal";
 import './navbar.css';
 
-export default function Navbar({ toggleSidebar, searchTerm, setSearchTerm }) {
+export default function Navbar({ toggleSidebar, searchTerm, setSearchTerm, onSearchSubmit }) {
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [showInviteModal, setShowInviteModal] = useState(false)
 
   const profileRef = useRef(null);
-  const navigate = useNavigate()
-
   const {currentUser, loading} = useAuthContext();
 
   useClickOutside(profileRef, () => setShowProfileMenu(false));
@@ -40,9 +38,14 @@ export default function Navbar({ toggleSidebar, searchTerm, setSearchTerm }) {
           <HiOutlineSearch className="search-icon" />
           <input 
           type="text" 
-          placeholder="Search" 
+          placeholder="Search tasks or task ID (e.g. Task-011)"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
+          onKeyDown={(e) => {
+            if(e.key == "Enter"){
+              onSearchSubmit();
+            }
+          }}
           />
         </div>
       </div>

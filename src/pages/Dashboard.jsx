@@ -1,12 +1,24 @@
-import { Outlet } from "react-router-dom";
+import { useState } from "react";
+import { Outlet, useNavigate } from "react-router-dom";
 import Navbar from "../components/navbar/Navbar";
 import Sidebar from "../components/sidebar/Sidebar";
-import { useState } from "react";
 import './dashboard.css'
 
 export default function Dashboard({currentUser, setCurrentUser}) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const [searchTerm , setSearchTerm] = useState("")
+  const navigate = useNavigate(); 
+
+  const handleSearchSubmit = () => {
+    const trimmed = searchTerm.trim();
+    const taskIdPattern = /^task-\d+$/i;
+
+    if(taskIdPattern.test(trimmed)){
+      navigate(`/task/${trimmed}?expanded=true`);
+      setSearchTerm("");
+    }
+  }
+
   const toggleSidebar = () => {
     setIsSidebarOpen((prev) => !prev);
   };
@@ -15,11 +27,10 @@ export default function Dashboard({currentUser, setCurrentUser}) {
         <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)}/>
         <div className="dashnoard-main">
             <Navbar 
-              currentUser={currentUser} 
-              setCurrentUser={setCurrentUser} 
               toggleSidebar={toggleSidebar} 
               searchTerm={searchTerm}   
               setSearchTerm={setSearchTerm}
+              onSearchSubmit={handleSearchSubmit}
             />
             <main className="dashboard-content">
                 <Outlet context={{currentUser, setCurrentUser, searchTerm}}/>

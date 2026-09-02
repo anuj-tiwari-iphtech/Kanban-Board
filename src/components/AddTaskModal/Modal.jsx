@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import {HiOutlineArrowsExpand,HiOutlineDotsHorizontal,HiOutlineX,HiOutlineTag,HiOutlineCalendar,        HiOutlineStar,HiPlus, HiOutlineThumbUp, 
+import {HiOutlineArrowsExpand,HiOutlineDotsHorizontal,HiOutlineX,HiOutlineTag,HiOutlineCalendar,HiOutlineStar,HiPlus, HiOutlineThumbUp, 
     HiOutlineUser, HiThumbUp, HiOutlineClock, HiOutlineBookmark,HiOutlineLink} from "react-icons/hi";
 import { BsCircle } from "react-icons/bs";
 import { priorityConfig } from "../KanbanBoard/TaskCard";
@@ -23,7 +23,7 @@ const availableLabels = [
 
 const priorityOptions = ["High", "Medium", "Low"];
 
-export default function TaskModal({ onClose, onSave, defaultStatus, editingTask, columns , sprintId}) {
+export default function TaskModal({ onClose, onSave, defaultStatus, editingTask, columns , sprintId, initialExpanded = false}) {
     const { currentUser } = useAuthContext();
     const {showAlert} = useAlert();
 
@@ -41,7 +41,7 @@ export default function TaskModal({ onClose, onSave, defaultStatus, editingTask,
     const [attachedFiles, setAttachedFiles] = useState(editingTask?.attachments || []);
     const [status, setStatus] = useState(initialStatus);
     const [taskName, setTaskName] = useState(editingTask?.name || "");
-    const [isExpanded, setIsExpanded] = useState(false);
+    const [isExpanded, setIsExpanded] = useState(initialExpanded);
     const [labels, setLabels] = useState(editingTask?.labels || []);
     const [showLabels, setShowLabels] = useState(false);
     const [priority, setPriority] = useState(editingTask?.priority || "Low");

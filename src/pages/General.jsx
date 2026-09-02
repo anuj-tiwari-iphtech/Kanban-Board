@@ -9,7 +9,7 @@ import {
   HiOutlineAdjustments,
   HiX,
 } from "react-icons/hi";
-import { useOutletContext, Link, useParams, useNavigate } from "react-router-dom";
+import { useOutletContext, Link, useParams, useSearchParams, useNavigate } from "react-router-dom";
 import { writeBatch, doc } from "firebase/firestore";
 import { db } from "../Firebase/firebase";
 import { useAlert } from "../components/AlertModal/AlertContext";
@@ -29,6 +29,8 @@ export default function General() {
   const { taskId } = useParams();
   const { showAlert } = useAlert();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const shouldExpand = searchParams.get("expanded") == "true";
 
   const {
     data: tasks,
@@ -54,6 +56,7 @@ export default function General() {
   const [editingTask, setEditingTask] = useState(null);
   const [showColumnModal, setShowColumnModal] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [initialExpanded, setInitialExpanded] = useState(false);
 
   const filterRef = useRef(null);
   const sortRef = useRef(null);
@@ -74,9 +77,10 @@ export default function General() {
       if (foundTask) {
         setEditingTask(foundTask);
         setIsModalOpen(true);
+        setInitialExpanded(shouldExpand);
       }
     }
-  }, [taskId, tasks]);
+  }, [taskId, tasks, shouldExpand]);
 
   const visibleTasks = useMemo(() => {
     let filtered = tasks.filter((t) => {
@@ -444,6 +448,7 @@ export default function General() {
             defaultStatus={defaultStatus}
             editingTask={editingTask}
             columns={columns}
+            initialExpanded={initialExpanded}
           />
         )}
       </div>
