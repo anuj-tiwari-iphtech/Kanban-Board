@@ -9,14 +9,17 @@ import useClickOutside from "../../customHooks/useClickOutside";
 import InviteModal from "../InviteModal/InviteModal";
 import './navbar.css';
 
-export default function Navbar({ toggleSidebar, searchTerm, setSearchTerm, onSearchSubmit }) {
+export default function Navbar({ toggleSidebar, searchTerm, setSearchTerm, onSearchSubmit, matchingTasks, showSuggestion, setShowSuggestion, onSelectSuggestion }) {
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [showInviteModal, setShowInviteModal] = useState(false)
 
   const profileRef = useRef(null);
+  const searchRef = useRef(null);
+
   const {currentUser, loading} = useAuthContext();
 
   useClickOutside(profileRef, () => setShowProfileMenu(false));
+  useClickOutside(searchRef, () => setShowSuggestion(false))
 
   const handleLogout = async () => {
     try {
@@ -40,13 +43,33 @@ export default function Navbar({ toggleSidebar, searchTerm, setSearchTerm, onSea
           type="text" 
           placeholder="Search tasks or task ID (e.g. Task-011)"
           value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
+          onChange={(e) => {
+            setSearchTerm(e.target.value)
+            setShowSuggestion(true);
+          }}
+          // onFocus={()=>setShowSuggestion(true)}
           onKeyDown={(e) => {
             if(e.key == "Enter"){
               onSearchSubmit();
+              setShowSuggestion(false);
             }
           }}
           />
+
+          {showSuggestion && matchingTasks.length>0 && (
+            <div className="search-suggestions">
+              {matchingTasks.map((task) => (
+                <button
+                  key={task.id}
+                  className="search-suggestion-item"
+                  onClick={() => onSelectSuggestion(task)}
+                >
+                  <sapn className="suggestion-task-id">{task.id}</sapn>
+                  <sapn className="suggestion-task-name">{task.name}</sapn>
+                </button>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 

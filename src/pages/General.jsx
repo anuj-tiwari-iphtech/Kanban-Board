@@ -85,6 +85,7 @@ export default function General() {
   const visibleTasks = useMemo(() => {
     let filtered = tasks.filter((t) => {
       if (!currentUser) return false;
+      if(!t.sprintId) return false;
       if (isMyTicketsActive) return t.assignee?.id === currentUser?.id;
       if (filterUserId) return t.assignee?.id === filterUserId;
       return true;
