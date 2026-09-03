@@ -6,7 +6,7 @@
   overflow-x: hidden;
 }
 
-.dashnoard-main {
+.dashboard-main {
   flex: 1;
   min-width: 0;
   display: flex;
@@ -25,106 +25,4 @@
   position: relative;
   display: flex;
   flex-direction: column;
-}
-
-.content-logged-out-overlay {
-  position: absolute;
-  inset: 0;
-  background: rgba(255, 255, 255, 0.55);
-  backdrop-filter: blur(8px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 100;
-  padding: 24px;
-  animation: overlayFade 0.3s ease;
-}
-
-@keyframes overlayFade {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-.logged-out-card {
-  background: #ffffff;
-  border-radius: 16px;
-  padding: 36px 32px;
-  text-align: center;
-  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.08);
-  max-width: 380px;
-  width: 100%;
-  border: 1px solid #eceef1;
-  animation: modalPop 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-@keyframes modalPop {
-  from {
-    opacity: 0;
-    transform: scale(0.96);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-.logged-out-icon {
-  font-size: 32px;
-  margin-bottom: 12px;
-}
-
-.logged-out-card h2 {
-  font-family: "DM Sans", sans-serif;
-  font-size: 20px;
-  font-weight: 700;
-  color: #171a1f;
-  margin: 0 0 8px 0;
-}
-
-.logged-out-card p {
-  font-family: "DM Sans", sans-serif;
-  font-size: 13px;
-  color: #565e6c;
-  line-height: 1.5;
-  margin: 0 0 24px 0;
-}
-
-.logged-out-actions {
-  display: flex;
-  gap: 10px;
-}
-
-.logged-out-btn {
-  flex: 1;
-  padding: 10px 16px;
-  border-radius: 8px;
-  font-family: "DM Sans", sans-serif;
-  font-size: 13px;
-  font-weight: 600;
-  text-decoration: none;
-  text-align: center;
-  transition: all 0.2s ease;
-}
-
-.logged-out-btn.primary {
-  background: #4338ca;
-  color: #ffffff;
-}
-
-.logged-out-btn.primary:hover {
-  background: #372aad;
-}
-
-.logged-out-btn.secondary {
-  background: #ffffff;
-  color: #4338ca;
-  border: 1px solid #4338ca;
-}
-
-.logged-out-btn.secondary:hover {
-  background: #f5f3ff;
 }

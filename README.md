@@ -6,7 +6,7 @@ A full-featured, real-time Kanban board application built with React and Firebas
 [View the live application](https://kanban-board-ys9h.vercel.app/)
 
 ## Board
-![Kanban Board Demo](./public/gif.png)
+![Kanban Board Demo](./public/ezgif.com-crop.gif)
 
 ## Features
 
@@ -154,23 +154,11 @@ This project is for educational/personal use. Add a license of your choice if di
 
 # ScreenShots
 
-## Login Page
-![loginPage](./public/login.png)
+## Board
+![Kanban Board Demo](./public/gif.png)
 
 ## Add Task Modal
 ![loginPage](./public/AddTaskModel.png)
 
-## Sprints Page
-![loginPage](./public/Sprints.png)
-
 ## Report Page
 ![loginPage](./public/Report.png)
-
-## Setting Page
-![loginPage](./public/Setting.png)
-
-## Published Page
-![loginPage](./public/Published.png)
-
-## Today Scheduled Page
-![loginPage](./public/todayScheduled.png)

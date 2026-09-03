@@ -174,14 +174,6 @@ export default function Login() {
           <FcGoogle /> Google account
         </button>
       </div>
-
-      <p className="login-terms">
-        By clicking "Submit", you agree to TaskFlow's{" "}
-        <span className="login-link">User Agreement</span>, and{" "}
-        <span className="login-link">Privacy Policy</span>, we prioritize your
-        privacy and trust, guiding you through innovative interactions while
-        safeguarding your personal information
-      </p>
     </div>
   );
 }

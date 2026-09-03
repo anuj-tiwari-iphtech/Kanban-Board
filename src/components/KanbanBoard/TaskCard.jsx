@@ -37,6 +37,10 @@ export default function TaskCard({task, isOverlay, onEdit}) {
             )}
         </div>
 
+        {task.id && (
+            <p className="task-id-tag">ID:{task.id}</p>
+        )}
+
         {task.attachments?.some((file) =>file.type?.startsWith("image/")
         ) && (<div className="task-image-wrapper">
                 <img

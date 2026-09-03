@@ -21,10 +21,11 @@ export default function Approutes() {
   if(loading) return <div>loading...</div>
   return (
     <Routes>
-            <Route path="/login" element={<Login />}/>
-            <Route path="/sign-up" element={<SignUp/>}/>
+            
         <Route path="/" element={<Dashboard currentUser={currentUser}/>}>
             <Route index element={<General/>}/>
+            <Route path="/login" element={null}/>
+            <Route path="/sign-up" element={null}/>
             <Route path="/task/:taskId" element={<General/>}/>
             <Route path="/board" element={<Board />}/>
             <Route path="/report" element={<Report/>}/>

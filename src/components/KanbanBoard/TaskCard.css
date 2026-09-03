@@ -20,7 +20,14 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 8px;
+}
+
+.task-id-tag {
+  font-size: 10px;
+  color: #8b95a7;
+  display: inline-block;
+  margin: 0 0 8px 0;
+  letter-spacing: 0.3px;
 }
 
 .task-name {

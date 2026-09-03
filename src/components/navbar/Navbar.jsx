@@ -80,7 +80,7 @@ export default function Navbar({ toggleSidebar, searchTerm, setSearchTerm, onSea
             <img src={currentUser?.avatar || profile} alt="profile" />
           </div>
 
-          {showProfileMenu && (
+          {currentUser && showProfileMenu && (
             <div className="profile-menu">
               <div className="profile-menu-header">
                   <img src={currentUser?.avatar || profile} alt="profile" className="profile-menu-avatar"/>

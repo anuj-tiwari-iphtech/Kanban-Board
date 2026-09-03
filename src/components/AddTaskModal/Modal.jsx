@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
-import {HiOutlineArrowsExpand,HiOutlineDotsHorizontal,HiOutlineX,HiOutlineTag,HiOutlineCalendar,HiOutlineStar,HiPlus, HiOutlineThumbUp, 
-    HiOutlineUser, HiThumbUp, HiOutlineClock, HiOutlineBookmark,HiOutlineLink} from "react-icons/hi";
+import {HiOutlineArrowsExpand,HiOutlineDotsHorizontal,HiOutlineX,HiOutlineTag,HiOutlineCalendar,HiOutlineStar,HiPlus,
+    HiOutlineUser, HiOutlineClock, HiOutlineBookmark,HiOutlineLink, HiOutlineViewGrid } from "react-icons/hi";
 import { BsCircle } from "react-icons/bs";
 import { priorityConfig } from "../KanbanBoard/TaskCard";
 import { useAuthContext } from "../../auth/AuthContext";
@@ -23,7 +23,7 @@ const availableLabels = [
 
 const priorityOptions = ["High", "Medium", "Low"];
 
-export default function TaskModal({ onClose, onSave, defaultStatus, editingTask, columns , sprintId, initialExpanded = false}) {
+export default function TaskModal({ onClose, onSave, defaultStatus, editingTask, columns , sprints =[], initialExpanded = false}) {
     const { currentUser } = useAuthContext();
     const {showAlert} = useAlert();
 
@@ -57,6 +57,7 @@ export default function TaskModal({ onClose, onSave, defaultStatus, editingTask,
         if (editingTask?.assignee) props.push("assignee");
         if (editingTask?.isScheduled) props.push("scheduled");
         if (editingTask?.isBookmarked) props.push("bookmark");
+        if (editingTask?.sprintId) props.push("sprint")
         return props;
     });
     const [showAddPropertyMenu, setShowAddPropertyMenu] = useState(false);
@@ -67,6 +68,8 @@ export default function TaskModal({ onClose, onSave, defaultStatus, editingTask,
     const [isBookmarked, setIsBookmarked] = useState(editingTask?.isBookmarked || false);
     const [activeReplyId, setActiveReplyId] = useState(null);
     const [replyInput, setReplyInput] = useState("");
+    const [selectedSprintId, setSelectedSprintId] = useState(editingTask?.sprintId || null)
+    const [showSprint, setShowSprint] = useState(false)
 
     // Refs
     const labelMenuRef = useRef(null);
@@ -75,6 +78,7 @@ export default function TaskModal({ onClose, onSave, defaultStatus, editingTask,
     const dateRef = useRef(null);
     const addPropertyRef = useRef(null);
     const assigneeRef = useRef(null);
+    const sprintRef = useRef(null);
 
     // Click outside handlers
     useClickOutside(labelMenuRef, () => setShowLabels(false));
@@ -83,6 +87,7 @@ export default function TaskModal({ onClose, onSave, defaultStatus, editingTask,
     useClickOutside(dateRef, () => setShowDatePicker(false));
     useClickOutside(addPropertyRef, () => setShowAddPropertyMenu(false));
     useClickOutside(assigneeRef, () => setShowAssignee(false));
+    useClickOutside(sprintRef, () => setShowSprint(false))
 
     // Handle save
     const handleSave = () => {
@@ -115,7 +120,7 @@ export default function TaskModal({ onClose, onSave, defaultStatus, editingTask,
             isScheduled,
             isBookmarked,
             attachments: attachedFiles,
-            sprintId: sprintId || null,
+            sprintId: selectedSprintId || null,
             updatedAt: new Date().toISOString(),
             ...(editingTask ? {} : { createdAt: new Date().toISOString() }),
         };
@@ -128,7 +133,8 @@ export default function TaskModal({ onClose, onSave, defaultStatus, editingTask,
     const allExtraProperties = [
         { key: "assignee", label: "Assignee" },
         { key: "scheduled", label: "Today's Scheduled" },
-        { key: "bookmark", label: "Bookmark" }
+        { key: "bookmark", label: "Bookmark" },
+        { key: "sprint", label: "Sprint"}
     ];
 
     const handleAddProperty = (key) => {
@@ -527,6 +533,45 @@ export default function TaskModal({ onClose, onSave, defaultStatus, editingTask,
                                     <><HiPlus /> Add bookmark</>
                                 )}
                             </button>
+                        </div>
+                    )}
+
+                    {visibleProperties.includes("sprint") && (
+                        <div className="modal-property-row" ref={sprintRef}>
+                            <HiOutlineViewGrid className="property-icon" />  
+                            <span className="modal-property-label">Sprint</span>
+                            <button 
+                                className="modal-add-btn"
+                                onClick={() => setShowSprint((prev) => !prev)}
+                            >
+                                {selectedSprintId ? (
+                                    <span className="selected-value">
+                                        {sprints.find((s) => s.id === selectedSprintId)?.name || "Unknown Sprint"}
+                                    </span>
+                                ) : (
+                                    <><HiPlus /> Add to sprint</>
+                                )}
+                            </button>
+                            {showSprint && (
+                                <div className="property-menu">
+                                    {sprints.length > 0 ? (
+                                        sprints.map((sprint) => (
+                                            <button
+                                                key={sprint.id}
+                                                className={`property-option ${selectedSprintId === sprint.id ? "active" : ""}`}
+                                                onClick={() => {
+                                                    setSelectedSprintId(sprint.id);
+                                                    setShowSprint(false);
+                                                }}
+                                            >
+                                                {sprint.name}
+                                            </button>
+                                        ))
+                                    ) : (
+                                        <p className="no-users-text">No sprints available</p>
+                                    )}
+                                </div>
+                            )}
                         </div>
                     )}
 

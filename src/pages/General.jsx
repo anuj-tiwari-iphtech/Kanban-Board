@@ -45,6 +45,8 @@ export default function General() {
     add: addColumn,
     update: updateColumn,
   } = useFirestoreCollection("columns", currentUser?.id, true);
+  
+  const {data : sprints} = useFirestoreCollection("sprints", currentUser?.id, true);
 
   const [activeAction, setActiveAction] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -449,6 +451,7 @@ export default function General() {
             defaultStatus={defaultStatus}
             editingTask={editingTask}
             columns={columns}
+            sprints={sprints}
             initialExpanded={initialExpanded}
           />
         )}
