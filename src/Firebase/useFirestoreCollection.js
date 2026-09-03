@@ -70,7 +70,7 @@ export default function useFirestoreCollection(collectionName, userId, isShared 
       throw new Error("User is not authenticated");
     }
 
-    const counterRef = doc(db, "counters", userId);
+    const counterRef = doc(db, "counters", "global");
     const counterField = `${collectionName}Counter`;
 
     const newId = await runTransaction(db, async (transaction) => {
